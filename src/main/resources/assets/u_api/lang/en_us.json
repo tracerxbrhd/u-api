@@ -1,0 +1,13 @@
+{
+  "message.u_api.returned": "You were returned from the instance.",
+  "message.u_api.recovered": "An unfinished instance was recovered after the server restart.",
+  "itemGroup.u_api": "U-API",
+  "difficulty.u_api.e": "E",
+  "difficulty.u_api.d": "D",
+  "difficulty.u_api.c": "C",
+  "difficulty.u_api.b": "B",
+  "difficulty.u_api.a": "A",
+  "difficulty.u_api.s": "S",
+  "difficulty.u_api.anomaly": "ANOMALY",
+  "screen.u_api.inventory": "Inventory"
+}
