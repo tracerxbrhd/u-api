@@ -5,7 +5,7 @@ Foundational API library for the related Minecraft NeoForge mods in this ecosyst
 - Minecraft: 1.21.1
 - NeoForge: 21.1.234
 - Java: 21
-- Version: 1.0
+- Version: 1.0.1
 - Mod ID: `u_api`
 
-Build on Windows with `gradlew.bat build`. The resulting artifact is `build/libs/u-api-1.0.jar`.
+Build on Windows with `gradlew.bat build`. The resulting artifact is `build/libs/u-api-1.0.1.jar`.

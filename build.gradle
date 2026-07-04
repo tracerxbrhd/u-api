@@ -166,3 +166,9 @@ idea {
         downloadJavadoc = true
     }
 }
+
+tasks.named('jar') {
+    from('LICENSE') {
+        into 'META-INF'
+    }
+}
