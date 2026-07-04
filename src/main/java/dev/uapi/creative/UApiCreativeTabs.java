@@ -55,7 +55,10 @@ public final class UApiCreativeTabs {
                         .thenComparing(entry -> entry.itemId().toString()))
                     .forEach(entry -> {
                         Item item = BuiltInRegistries.ITEM.get(entry.itemId());
-                        if (item != Items.AIR) output.accept(item);
+                        // ItemLike acceptance constructs a fresh, component-less ItemStack. Use the
+                        // item's canonical default stack so custom potion contents and other default
+                        // data components survive creative-tab population.
+                        if (item != Items.AIR) output.accept(item.getDefaultInstance());
                     }))
                 .build());
         }
