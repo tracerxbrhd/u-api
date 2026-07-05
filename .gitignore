@@ -9,7 +9,8 @@ build
 
 # IntelliJ
 out/
-.idea
+.idea/
+.vscode/
 *.iml
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -31,3 +32,38 @@ crash-reports/
 *.bak
 Thumbs.db
 Desktop.ini
+
+# AI / prompt drafts / generation workspace
+prompts/
+prompt/
+ai/
+.ai/
+*.prompt
+*.prompts
+*_prompt.txt
+*_prompts.txt
+image_prompts/
+generation_prompts/
+generated_ai/
+ai_generated/
+.dalle/
+.midjourney/
+.stablediffusion/
+
+# Local design / Blockbench working files
+bb/
+*.bbmodel
+
+# Local notes / private drafts
+notes/
+private_notes/
+todo.local.md
+LOCAL_NOTES.md
+*.local.md
+*.draft.md
+
+# Temporary assets / exports
+exports/
+temp/
+tmp/
+*.backup

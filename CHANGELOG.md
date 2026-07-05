@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2026-07-05
+
+- Added lifecycle-safe runtime configuration snapshots so optional integration discovery never reads NeoForge config values before they are loaded.
+- Standardized manually edited Common, Client and Server configuration files under `config/uapi/u-api/`.
+- Removed the experimental in-game configuration editor, its screen registry and raw text editor before release.
+
 ## 1.1.0 - 2026-07-04
 
 - Added the optional accessory integration service and a reflection-safe Curios provider.
