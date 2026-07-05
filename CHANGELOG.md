@@ -4,7 +4,8 @@
 
 - Added lifecycle-safe runtime configuration snapshots so optional integration discovery never reads NeoForge config values before they are loaded.
 - Standardized manually edited Common, Client and Server configuration files under `config/uapi/u-api/`.
-- Removed the experimental in-game configuration editor, its screen registry and raw text editor before release.
+- Removed the experimental in-game configuration editor, screen registry and raw text editor.
+- Kept Common, Client and Server configuration strictly file-based.
 
 ## 1.1.0 - 2026-07-04
 
