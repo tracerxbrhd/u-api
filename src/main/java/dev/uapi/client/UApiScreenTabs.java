@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /** Client-only registry used by addon mods to attach screens to the shared inventory tab bar. */
@@ -32,21 +33,35 @@ public final class UApiScreenTabs {
 
     public static synchronized void register(ResourceLocation id, int order, Component title,
                                              Supplier<ItemStack> icon, Function<Minecraft, Screen> opener) {
-        TABS.put(id, new Tab(id, order, title, icon, null, opener));
+        register(id, order, title, icon, () -> true, opener);
+    }
+
+    public static synchronized void register(ResourceLocation id, int order, Component title,
+                                             Supplier<ItemStack> icon, BooleanSupplier visible,
+                                             Function<Minecraft, Screen> opener) {
+        TABS.put(id, new Tab(id, order, title, icon, null, visible, opener));
     }
 
     /** Registers a tab backed by a 16x16 texture so resource packs can replace its icon. */
     public static synchronized void register(ResourceLocation id, int order, Component title,
                                              ResourceLocation textureIcon, Function<Minecraft, Screen> opener) {
-        TABS.put(id, new Tab(id, order, title, null, textureIcon, opener));
+        register(id, order, title, textureIcon, () -> true, opener);
+    }
+
+    /** Registers a resource-pack-backed tab whose visibility can follow synchronized server rules. */
+    public static synchronized void register(ResourceLocation id, int order, Component title,
+                                             ResourceLocation textureIcon, BooleanSupplier visible,
+                                             Function<Minecraft, Screen> opener) {
+        TABS.put(id, new Tab(id, order, title, null, textureIcon, visible, opener));
     }
 
     public static synchronized List<Tab> tabs() {
-        List<Tab> result = new ArrayList<>(TABS.values());
+        List<Tab> result = new ArrayList<>();
+        for (Tab tab : TABS.values()) if (tab.visible().getAsBoolean()) result.add(tab);
         result.sort(Comparator.comparingInt(Tab::order).thenComparing(value -> value.id().toString()));
         return List.copyOf(result);
     }
 
     public record Tab(ResourceLocation id, int order, Component title, Supplier<ItemStack> itemIcon,
-                      ResourceLocation textureIcon, Function<Minecraft, Screen> opener) {}
+                      ResourceLocation textureIcon, BooleanSupplier visible, Function<Minecraft, Screen> opener) {}
 }

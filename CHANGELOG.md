@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 - 2026-07-06
+
+- Breaking: extended shared inventory tabs with synchronized visibility predicates.
+- Kept the API neutral so addon mods can hide server-disabled screens without U-API knowing their gameplay rules.
+
 ## 1.2.0 - 2026-07-05
 
 - Added lifecycle-safe runtime configuration snapshots so optional integration discovery never reads NeoForge config values before they are loaded.

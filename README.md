@@ -5,9 +5,11 @@ Foundational API library for the related Minecraft NeoForge mods in this ecosyst
 - Minecraft: 1.21.1
 - NeoForge: 21.1.234
 - Java: 21
-- Version: 1.2.0
+- Version: 1.3.0
 - Mod ID: `u_api`
 
 U-API configuration is stored under `config/uapi/u-api/` as `common.toml`, `client.toml` and `server.toml`. These files are created and loaded through NeoForge and are edited manually. U-API does not provide an in-game configuration editor.
 
-Build on Windows with `gradlew.bat build`. The resulting artifact is `build/libs/u-api-1.2.0.jar`.
+Version 1.3.0 is a breaking update. Addons compiled against older tab-registry records may need to be rebuilt.
+
+Build on Windows with `gradlew.bat build`. The resulting artifact is `build/libs/u-api-1.3.0.jar`.
