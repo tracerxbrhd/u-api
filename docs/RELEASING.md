@@ -50,7 +50,7 @@ Dry-run performs the same local checks and clean Gradle build, then stops before
 git status
 git add .
 git commit -m "Release 1.4.0"
-git push origin <branch>
+git push github <branch>
 .\scripts\release.ps1
 ```
 
@@ -73,7 +73,7 @@ The script creates and pushes an annotated tag only after all checks pass.
 Release:
 
 ```text
-v1.3.0+mc1.21.1
+v1.3.1+mc1.21.1
 ```
 
 Beta/alpha:
@@ -86,14 +86,15 @@ v1.4.0-alpha+mc1.21.1
 The internal `gradle.properties` values remain separate:
 
 ```properties
-mod_version=1.3.0
+mod_version=1.3.1
 minecraft_version=1.21.1
+release_remote=github
 ```
 
 The built user-facing JAR includes the Minecraft suffix, for example:
 
 ```text
-u-api-1.3.0+mc1.21.1.jar
+u-api-1.3.1+mc1.21.1.jar
 ```
 
 ## What the local script checks
@@ -102,10 +103,10 @@ u-api-1.3.0+mc1.21.1.jar
 - `gradle.properties` and `gradlew.bat` exist.
 - The current branch is not detached.
 - The working tree has no modified or untracked files.
-- The current branch exists on `origin`.
-- Local `HEAD` exactly matches `origin/<branch>`.
+- The current branch exists on the configured `release_remote`.
+- Local `HEAD` exactly matches `<release_remote>/<branch>`.
 - `mod_version`, `minecraft_version` and `mod_name` are readable.
-- The target tag does not exist locally or on `origin`.
+- The target tag does not exist locally or on the configured `release_remote`.
 - `.\gradlew.bat clean build` succeeds.
 
 The script never commits source files, pushes branches, rewrites tags, or creates GitHub Releases locally.
@@ -131,7 +132,7 @@ If the tag push fails, the script removes the local tag automatically. If you ne
 
 ```powershell
 git tag -d v1.4.0+mc1.21.1
-git push origin :refs/tags/v1.4.0+mc1.21.1
+git push github :refs/tags/v1.4.0+mc1.21.1
 ```
 
 Do not reuse a published tag for a different commit. Users, GitHub Releases and publishing platforms can cache tag state. Prefer increasing the patch version and publishing a new release.

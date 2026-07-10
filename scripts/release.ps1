@@ -73,6 +73,19 @@ function Require-Property {
     return [string]$Properties[$Name]
 }
 
+function Optional-Property {
+    param(
+        [Parameter(Mandatory = $true)][hashtable]$Properties,
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$Fallback
+    )
+
+    if (-not $Properties.ContainsKey($Name) -or [string]::IsNullOrWhiteSpace($Properties[$Name])) {
+        return $Fallback
+    }
+    return [string]$Properties[$Name]
+}
+
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     throw "Git is not available in PATH."
 }
@@ -104,28 +117,34 @@ if (-not [string]::IsNullOrWhiteSpace($status)) {
     throw "Working tree is not clean. Commit, stash, or remove all changes and untracked files before releasing.`n$status"
 }
 
-Invoke-Checked git @("fetch", "origin", $branch, "--tags", "--prune") "git fetch failed."
-
-if (-not (Test-GitCommand @("rev-parse", "--verify", "origin/$branch"))) {
-    throw "Current branch '$branch' does not exist on origin."
-}
-
-$head = Get-CheckedOutput git @("rev-parse", "HEAD") "Unable to read local HEAD."
-$remoteHead = Get-CheckedOutput git @("rev-parse", "origin/$branch") "Unable to read origin/$branch."
-if ($head -ne $remoteHead) {
-    throw "Local HEAD does not match origin/$branch. Push or pull before releasing.`nLocal:  $head`nRemote: $remoteHead"
-}
-
-$aheadBehind = Get-CheckedOutput git @("rev-list", "--left-right", "--count", "$branch...origin/$branch") "Unable to compare local branch with origin."
-$parts = $aheadBehind -split "\s+"
-if ($parts.Count -lt 2 -or $parts[0] -ne "0" -or $parts[1] -ne "0") {
-    throw "Branch '$branch' is not synchronized with origin/$branch. Ahead: $($parts[0]); behind: $($parts[1])."
-}
-
 $properties = Read-GradleProperties $gradlePropertiesPath
 $modVersion = Require-Property $properties "mod_version"
 $minecraftVersion = Require-Property $properties "minecraft_version"
 $modName = Require-Property $properties "mod_name"
+$releaseRemote = Optional-Property $properties "release_remote" "github"
+
+if ($releaseRemote -notmatch "^[A-Za-z0-9._-]+$") {
+    throw "release_remote '$releaseRemote' is not a valid Git remote name."
+}
+
+Invoke-Checked git @("fetch", $releaseRemote, $branch, "--tags", "--prune") "git fetch failed."
+
+$remoteBranch = "$releaseRemote/$branch"
+if (-not (Test-GitCommand @("rev-parse", "--verify", $remoteBranch))) {
+    throw "Current branch '$branch' does not exist on remote '$releaseRemote'."
+}
+
+$head = Get-CheckedOutput git @("rev-parse", "HEAD") "Unable to read local HEAD."
+$remoteHead = Get-CheckedOutput git @("rev-parse", $remoteBranch) "Unable to read $remoteBranch."
+if ($head -ne $remoteHead) {
+    throw "Local HEAD does not match $remoteBranch. Push or pull before releasing.`nLocal:  $head`nRemote: $remoteHead"
+}
+
+$aheadBehind = Get-CheckedOutput git @("rev-list", "--left-right", "--count", "$branch...$remoteBranch") "Unable to compare local branch with $releaseRemote."
+$parts = $aheadBehind -split "\s+"
+if ($parts.Count -lt 2 -or $parts[0] -ne "0" -or $parts[1] -ne "0") {
+    throw "Branch '$branch' is not synchronized with $remoteBranch. Ahead: $($parts[0]); behind: $($parts[1])."
+}
 
 if ($modVersion -notmatch "^\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?$") {
     throw "mod_version '$modVersion' is not supported. Expected SemVer-like value, for example 1.3.0 or 1.4.0-beta."
@@ -142,13 +161,14 @@ if (Test-GitCommand @("show-ref", "--tags", "--verify", "--quiet", "refs/tags/$t
     throw "Tag '$tagName' already exists locally."
 }
 
-$remoteTag = Get-CheckedOutput git @("ls-remote", "--tags", "origin", "refs/tags/$tagName") "Unable to check remote tags."
+$remoteTag = Get-CheckedOutput git @("ls-remote", "--tags", $releaseRemote, "refs/tags/$tagName") "Unable to check remote tags."
 if (-not [string]::IsNullOrWhiteSpace($remoteTag)) {
-    throw "Tag '$tagName' already exists on origin."
+    throw "Tag '$tagName' already exists on remote '$releaseRemote'."
 }
 
 Write-Host ""
 Write-Host "Project:           $modName"
+Write-Host "Remote:            $releaseRemote"
 Write-Host "Branch:            $branch"
 Write-Host "Mod version:       $modVersion"
 Write-Host "Minecraft version: $minecraftVersion"
@@ -170,7 +190,7 @@ $tagCreated = $false
 try {
     Invoke-Checked git @("tag", "-a", $tagName, "-m", "$modName $publishVersion for Minecraft $minecraftVersion") "Failed to create local tag."
     $tagCreated = $true
-    Invoke-Checked git @("push", "origin", $tagName) "Failed to push tag '$tagName' to origin."
+    Invoke-Checked git @("push", $releaseRemote, $tagName) "Failed to push tag '$tagName' to remote '$releaseRemote'."
     Write-Host ""
     Write-Host "Release tag pushed: $tagName"
     Write-Host "GitHub Actions will build and publish the release."
