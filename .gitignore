@@ -61,6 +61,7 @@ todo.local.md
 LOCAL_NOTES.md
 *.local.md
 *.draft.md
+scripts/release.local.ps1
 
 # Temporary assets / exports
 exports/

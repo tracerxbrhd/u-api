@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1 - 2026-07-10
+
+- Added JSON-driven container helper buttons in the fixed top-left screen corner.
+- Added built-in helper actions for gamemode survival/creative, weather clear/rain, morning and night.
+- Limited helper rendering to container screens so custom non-container UIs do not get overlapped.
+- Added optional JEI compatibility: helper buttons are offset below JEI's top-left bookmark controls and registered as a JEI extra GUI area.
+- Added per-button `permission_level` checks for server-safe helper commands.
+- Narrowed declared Minecraft/NeoForge support to the tested 1.21.1 / 21.1.x line.
+
 ## 1.3.0 - 2026-07-06
 
 - Breaking: extended shared inventory tabs with synchronized visibility predicates.

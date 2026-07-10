@@ -1,0 +1,327 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Validate tag and project metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          read_property() {
+            local key="$1"
+            local value
+            value="$(grep -E "^${key}=" gradle.properties | head -n 1 | cut -d '=' -f 2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+            if [[ -z "${value}" ]]; then
+              echo "Required gradle.properties key '${key}' is missing or empty." >&2
+              exit 1
+            fi
+            printf '%s' "${value}"
+          }
+
+          mod_version="$(read_property mod_version)"
+          minecraft_version="$(read_property minecraft_version)"
+          mod_name="$(read_property mod_name)"
+          tag="${GITHUB_REF_NAME}"
+
+          if [[ ! "${mod_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            echo "Unsupported mod_version: ${mod_version}" >&2
+            exit 1
+          fi
+          if [[ ! "${minecraft_version}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Unsupported minecraft_version: ${minecraft_version}" >&2
+            exit 1
+          fi
+
+          release_tag="v${mod_version}+mc${minecraft_version}"
+          beta_tag="v${mod_version}-beta+mc${minecraft_version}"
+          alpha_tag="v${mod_version}-alpha+mc${minecraft_version}"
+
+          if [[ "${tag}" == "${release_tag}" ]]; then
+            channel="release"
+            version_number="${mod_version}+mc${minecraft_version}"
+            release_title="${mod_name} ${mod_version} for Minecraft ${minecraft_version}"
+            prerelease="false"
+            featured="true"
+          elif [[ "${tag}" == "${beta_tag}" ]]; then
+            channel="beta"
+            version_number="${mod_version}-beta+mc${minecraft_version}"
+            release_title="${mod_name} ${mod_version} Beta for Minecraft ${minecraft_version}"
+            prerelease="true"
+            featured="false"
+          elif [[ "${tag}" == "${alpha_tag}" ]]; then
+            channel="alpha"
+            version_number="${mod_version}-alpha+mc${minecraft_version}"
+            release_title="${mod_name} ${mod_version} Alpha for Minecraft ${minecraft_version}"
+            prerelease="true"
+            featured="false"
+          else
+            echo "Tag '${tag}' does not match gradle.properties." >&2
+            echo "Expected one of:" >&2
+            echo "  ${release_tag}" >&2
+            echo "  ${beta_tag}" >&2
+            echo "  ${alpha_tag}" >&2
+            exit 1
+          fi
+
+          {
+            echo "mod_version=${mod_version}"
+            echo "minecraft_version=${minecraft_version}"
+            echo "mod_name=${mod_name}"
+            echo "channel=${channel}"
+            echo "version_number=${version_number}"
+            echo "release_title=${release_title}"
+            echo "prerelease=${prerelease}"
+            echo "featured=${featured}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Validate publishing configuration
+        id: publish_config
+        shell: bash
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${MODRINTH_TOKEN}" ]]; then
+            echo "Missing required GitHub secret: MODRINTH_TOKEN" >&2
+            exit 1
+          fi
+          if [[ -z "${MODRINTH_PROJECT_ID}" ]]; then
+            echo "Missing required GitHub repository variable: MODRINTH_PROJECT_ID" >&2
+            exit 1
+          fi
+
+          has_curseforge="false"
+          if [[ -n "${CURSEFORGE_TOKEN}" && -n "${CURSEFORGE_PROJECT_ID}" ]]; then
+            has_curseforge="true"
+          fi
+
+          echo "has_curseforge=${has_curseforge}" >> "${GITHUB_OUTPUT}"
+          echo "HAS_CURSEFORGE=${has_curseforge}" >> "${GITHUB_ENV}"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon clean build
+
+      - name: Select release artifact
+        id: artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t jars < <(find build/libs -maxdepth 1 -type f -name "*.jar" \
+            ! -name "*-sources.jar" \
+            ! -name "*-javadoc.jar" \
+            ! -name "*-dev.jar" \
+            ! -name "*-slim.jar" \
+            ! -name "*-all-dev.jar" | sort)
+
+          if [[ "${#jars[@]}" -ne 1 ]]; then
+            echo "Expected exactly one user-facing JAR in build/libs, found ${#jars[@]}:" >&2
+            printf '  %s\n' "${jars[@]}" >&2
+            exit 1
+          fi
+
+          artifact="${jars[0]}"
+          if [[ ! -s "${artifact}" ]]; then
+            echo "Artifact '${artifact}' is missing or empty." >&2
+            exit 1
+          fi
+
+          echo "Selected artifact: ${artifact}"
+          echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
+          echo "artifact_name=$(basename "${artifact}")" >> "${GITHUB_OUTPUT}"
+
+      - name: Generate release notes
+        shell: bash
+        env:
+          MOD_VERSION: ${{ steps.meta.outputs.mod_version }}
+          MINECRAFT_VERSION: ${{ steps.meta.outputs.minecraft_version }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import pathlib
+          import re
+          import subprocess
+
+          mod_version = os.environ["MOD_VERSION"]
+          minecraft_version = os.environ["MINECRAFT_VERSION"]
+          tag_name = os.environ["TAG_NAME"]
+          root = pathlib.Path(".")
+
+          def changelog_section():
+              path = root / "CHANGELOG.md"
+              if not path.exists():
+                  return None
+              lines = path.read_text(encoding="utf-8").splitlines()
+              header = re.compile(rf"^##\s+(?:\[\s*)?{re.escape(mod_version)}(?:\s*\])?(?:\s+-.*)?\s*$")
+              start = None
+              for index, line in enumerate(lines):
+                  if header.match(line.strip()):
+                      start = index
+                      break
+              if start is None:
+                  return None
+              end = len(lines)
+              for index in range(start + 1, len(lines)):
+                  if lines[index].startswith("## "):
+                      end = index
+                      break
+              body = "\n".join(lines[start + 1:end]).strip()
+              return body or None
+
+          def file_changelog():
+              path = root / "changelog" / f"{mod_version}.md"
+              if path.exists():
+                  body = path.read_text(encoding="utf-8").strip()
+                  return body or None
+              return None
+
+          def automatic_notes():
+              result = subprocess.run(
+                  ["git", "tag", "--list", f"v*+mc{minecraft_version}", "--sort=-creatordate"],
+                  check=True,
+                  text=True,
+                  stdout=subprocess.PIPE,
+              )
+              previous = None
+              for candidate in result.stdout.splitlines():
+                  candidate = candidate.strip()
+                  if candidate and candidate != tag_name:
+                      previous = candidate
+                      break
+              commit_range = f"{previous}..HEAD" if previous else "HEAD"
+              log = subprocess.run(
+                  ["git", "log", "--no-merges", "--pretty=format:%s", commit_range],
+                  check=True,
+                  text=True,
+                  stdout=subprocess.PIPE,
+              ).stdout.splitlines()
+              messages = [line.strip() for line in log if line.strip()]
+              if messages:
+                  return "## Changes\n\n" + "\n".join(f"- {message}" for message in messages)
+              return "## Changes\n\n- Initial release for this Minecraft version."
+
+          notes = changelog_section() or file_changelog() or automatic_notes()
+          compatibility = (
+              "\n\n## Compatibility\n\n"
+              f"- Minecraft: {minecraft_version}\n"
+              "- Loader: NeoForge\n"
+              "- Java: 21\n"
+          )
+          pathlib.Path("release_notes.md").write_text(notes.rstrip() + compatibility, encoding="utf-8")
+          PY
+
+      - name: Publish to Modrinth
+        id: publish_modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: ${{ steps.meta.outputs.featured }}
+          files: ${{ steps.artifact.outputs.artifact }}
+          name: ${{ steps.meta.outputs.release_title }}
+          version: ${{ steps.meta.outputs.version_number }}
+          version-type: ${{ steps.meta.outputs.channel }}
+          changelog-file: release_notes.md
+          loaders: neoforge
+          game-versions: ${{ steps.meta.outputs.minecraft_version }}
+          java: 21
+
+      - name: Publish to CurseForge
+        if: env.HAS_CURSEFORGE == 'true'
+        id: publish_curseforge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: ${{ steps.artifact.outputs.artifact }}
+          name: ${{ steps.meta.outputs.release_title }}
+          version: ${{ steps.meta.outputs.version_number }}
+          version-type: ${{ steps.meta.outputs.channel }}
+          changelog-file: release_notes.md
+          loaders: neoforge
+          game-versions: ${{ steps.meta.outputs.minecraft_version }}
+          java: 21
+
+      - name: Create GitHub Release
+        id: github_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ steps.meta.outputs.release_title }}
+          body_path: release_notes.md
+          files: ${{ steps.artifact.outputs.artifact }}
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+          draft: false
+
+      - name: Release summary
+        if: always()
+        shell: bash
+        env:
+          MOD_NAME: ${{ steps.meta.outputs.mod_name }}
+          MOD_VERSION: ${{ steps.meta.outputs.mod_version }}
+          MINECRAFT_VERSION: ${{ steps.meta.outputs.minecraft_version }}
+          CHANNEL: ${{ steps.meta.outputs.channel }}
+          VERSION_NUMBER: ${{ steps.meta.outputs.version_number }}
+          ARTIFACT: ${{ steps.artifact.outputs.artifact_name }}
+          HAS_CURSEFORGE: ${{ steps.publish_config.outputs.has_curseforge }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+        run: |
+          {
+            echo "# Release summary"
+            echo ""
+            echo "- Project: ${MOD_NAME:-unknown}"
+            echo "- Mod version: ${MOD_VERSION:-unknown}"
+            echo "- Minecraft: ${MINECRAFT_VERSION:-unknown}"
+            echo "- Channel: ${CHANNEL:-unknown}"
+            echo "- Tag: ${GITHUB_REF_NAME}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Artifact: ${ARTIFACT:-not selected}"
+            echo "- GitHub Release: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
+            echo "- Modrinth: https://modrinth.com/mod/${MODRINTH_PROJECT_ID}/version/${VERSION_NUMBER}"
+            if [[ "${HAS_CURSEFORGE:-false}" == "true" ]]; then
+              echo "- CurseForge: configured for project ${CURSEFORGE_PROJECT_ID}"
+            else
+              echo "- CurseForge: skipped; CURSEFORGE_TOKEN and/or CURSEFORGE_PROJECT_ID not configured"
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
