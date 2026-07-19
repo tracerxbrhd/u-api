@@ -49,7 +49,7 @@ Dry-run performs the same local checks and clean Gradle build, then stops before
 ```powershell
 git status
 git add .
-git commit -m "Release 1.4.0"
+git commit -m "Release 2.0.0"
 git push github <branch>
 .\scripts\release.ps1
 ```
@@ -73,20 +73,20 @@ The script creates and pushes an annotated tag only after all checks pass.
 Release:
 
 ```text
-v1.3.1+mc1.21.1
+v2.0.0+mc1.21.1
 ```
 
 Beta/alpha:
 
 ```text
-v1.4.0-beta+mc1.21.1
-v1.4.0-alpha+mc1.21.1
+v2.0.0-beta+mc1.21.1
+v2.0.0-alpha+mc1.21.1
 ```
 
 The internal `gradle.properties` values remain separate:
 
 ```properties
-mod_version=1.3.1
+mod_version=2.0.0
 minecraft_version=1.21.1
 release_remote=github
 ```
@@ -94,7 +94,7 @@ release_remote=github
 The built user-facing JAR includes the Minecraft suffix, for example:
 
 ```text
-u-api-1.3.1+mc1.21.1.jar
+u-api-2.0.0+mc1.21.1.jar
 ```
 
 ## What the local script checks
@@ -131,8 +131,8 @@ If the local build fails, fix the project, commit the fix, push the branch and r
 If the tag push fails, the script removes the local tag automatically. If you need to remove a mistaken tag manually:
 
 ```powershell
-git tag -d v1.4.0+mc1.21.1
-git push github :refs/tags/v1.4.0+mc1.21.1
+git tag -d v2.0.0+mc1.21.1
+git push github :refs/tags/v2.0.0+mc1.21.1
 ```
 
 Do not reuse a published tag for a different commit. Users, GitHub Releases and publishing platforms can cache tag state. Prefer increasing the patch version and publishing a new release.
@@ -144,8 +144,8 @@ If Modrinth rejects a file, fix the cause, bump the patch version and publish a 
 Tags are unique across the entire repository:
 
 ```text
-v1.4.0+mc1.21.1
-v1.4.0+mc1.21.4
+v2.0.0+mc1.21.1
+v2.0.0+mc1.21.4
 ```
 
 The workflow only compares previous tags with the same `+mc<version>` suffix when generating fallback release notes.

@@ -2,6 +2,7 @@ package dev.uapi.accessory;
 
 import dev.uapi.UApi;
 import dev.uapi.integration.IntegrationService;
+import dev.uapi.config.UApiCommonConfigManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -80,6 +81,7 @@ public final class AccessoryIntegrationService {
     private static synchronized void initialize() {
         if (initialized) return;
         initialized = true;
+        if (!UApiCommonConfigManager.optionalIntegrationsEnabled()) return;
         if (!IntegrationService.isLoaded("curios")) return;
         try {
             registerProvider(new ReflectiveCuriosProvider());

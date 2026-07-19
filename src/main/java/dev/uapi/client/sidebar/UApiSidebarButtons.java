@@ -29,6 +29,7 @@ import java.util.Locale;
 
 /** Client-side inventory helper buttons loaded from config/uapi/u-api/sidebar_buttons.json. */
 public final class UApiSidebarButtons {
+    private static final int FORMAT_VERSION = 2;
     public static final int ORIGIN_X = 4;
     public static final int ORIGIN_Y = 4;
     public static final int BUTTON_SIZE = 20;
@@ -105,6 +106,7 @@ public final class UApiSidebarButtons {
     private static void load() throws IOException {
         try (Reader reader = Files.newBufferedReader(FILE)) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+            requireCurrentFormat(root);
             if (root.has("enabled") && !root.get("enabled").getAsBoolean()) {
                 buttons = List.of();
                 return;
@@ -132,7 +134,7 @@ public final class UApiSidebarButtons {
         ItemStack icon = iconStack(string(object, "item", "minecraft:command_block"));
         List<String> commands = commands(object);
         if (commands.isEmpty()) return null;
-        int permissionLevel = permissionLevel(object, commands);
+        int permissionLevel = permissionLevel(object);
         return new ButtonDefinition(id, order, Component.literal(title), icon, List.copyOf(commands), permissionLevel);
     }
 
@@ -153,28 +155,15 @@ public final class UApiSidebarButtons {
         if (!normalized.isEmpty()) commands.add(normalized);
     }
 
-    private static int permissionLevel(JsonObject object, List<String> commands) {
-        if (object.has("permission_level")) return clampPermissionLevel(object.get("permission_level").getAsInt());
-        if (object.has("permissionLevel")) return clampPermissionLevel(object.get("permissionLevel").getAsInt());
-        return inferPermissionLevel(commands);
-    }
-
-    private static int inferPermissionLevel(List<String> commands) {
-        for (String command : commands) {
-            String root = commandRoot(command);
-            if (root.equals("gamemode") || root.equals("weather") || root.equals("time")) return 2;
+    private static int permissionLevel(JsonObject object) {
+        if (!object.has("permission_level") || !object.get("permission_level").isJsonPrimitive()
+            || !object.getAsJsonPrimitive("permission_level").isNumber()) {
+            throw new IllegalArgumentException("sidebar button requires numeric permission_level");
         }
-        return 0;
-    }
-
-    private static String commandRoot(String command) {
-        String normalized = command == null ? "" : command.trim();
-        int space = normalized.indexOf(' ');
-        return (space < 0 ? normalized : normalized.substring(0, space)).toLowerCase(Locale.ROOT);
-    }
-
-    private static int clampPermissionLevel(int level) {
-        return Math.max(0, Math.min(4, level));
+        int level = object.get("permission_level").getAsInt();
+        if (level < 0 || level > 4)
+            throw new IllegalArgumentException("sidebar button permission_level must be in range 0..4");
+        return level;
     }
 
     private static ItemStack iconStack(String itemId) {
@@ -198,6 +187,7 @@ public final class UApiSidebarButtons {
 
     private static JsonObject defaultConfig() {
         JsonObject root = new JsonObject();
+        root.addProperty("format_version", FORMAT_VERSION);
         root.addProperty("enabled", true);
         root.addProperty("columns", 2);
         JsonArray array = new JsonArray();
@@ -209,6 +199,19 @@ public final class UApiSidebarButtons {
         add(array, "u_api:time_night", 5, "Set night", "minecraft:black_bed", "time set night", 2);
         root.add("buttons", array);
         return root;
+    }
+
+    private static void requireCurrentFormat(JsonObject root) {
+        if (!root.has("format_version") || !root.get("format_version").isJsonPrimitive()
+            || !root.getAsJsonPrimitive("format_version").isNumber()) {
+            throw new IllegalArgumentException("sidebar_buttons.json requires numeric format_version="
+                + FORMAT_VERSION + "; cross-version loading is not supported");
+        }
+        int actual = root.get("format_version").getAsInt();
+        if (actual != FORMAT_VERSION) {
+            throw new IllegalArgumentException("sidebar_buttons.json requires format_version="
+                + FORMAT_VERSION + " but found " + actual + "; cross-version loading is not supported");
+        }
     }
 
     private static void add(JsonArray array, String id, int order, String title, String item, String command,

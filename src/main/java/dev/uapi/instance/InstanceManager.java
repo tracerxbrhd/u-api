@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -36,6 +37,11 @@ public final class InstanceManager {
 
     public static InstanceManager get(MinecraftServer server) {
         return MANAGERS.computeIfAbsent(server, InstanceManager::new);
+    }
+
+    /** Releases the manager's strong value-to-server reference at the lifecycle boundary. */
+    public static void stop(MinecraftServer server) {
+        MANAGERS.remove(Objects.requireNonNull(server, "server"));
     }
 
     public Collection<InstanceView> all() {

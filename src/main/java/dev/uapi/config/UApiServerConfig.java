@@ -10,6 +10,8 @@ public final class UApiServerConfig {
     public static final ModConfigSpec.IntValue TIMER_CHECK_INTERVAL_TICKS;
     public static final ModConfigSpec.BooleanValue RECOVER_PLAYERS_AFTER_RESTART;
     public static final ModConfigSpec.BooleanValue LOG_SKIPPED_REWARDS;
+    public static final ModConfigSpec.IntValue NETWORK_ACTIONS_PER_SECOND;
+    public static final ModConfigSpec.IntValue NETWORK_MAX_PENDING_PER_CONNECTION;
     public static final ModConfigSpec.ConfigValue<String> DIFFICULTY_E;
     public static final ModConfigSpec.ConfigValue<String> DIFFICULTY_D;
     public static final ModConfigSpec.ConfigValue<String> DIFFICULTY_C;
@@ -40,6 +42,11 @@ public final class UApiServerConfig {
             "Ticks between instance lifecycle checks; 20 ticks is approximately one second.",
             "Valid range: 1..1200. Default: 20. Higher values reduce checks but make timers less precise.")
             .defineInRange("timerCheckIntervalTicks", 20, 1, 1200);
+        builder.pop();
+
+        builder.comment("Default bounds for U-API consumers that expose user-triggered payloads.").push("network");
+        NETWORK_ACTIONS_PER_SECOND = builder.defineInRange("maximumActionsPerSecond", 20, 1, 1000);
+        NETWORK_MAX_PENDING_PER_CONNECTION = builder.defineInRange("maximumPendingPerConnection", 64, 1, 4096);
         builder.pop();
 
         builder.comment(

@@ -6,9 +6,12 @@ import dev.uapi.instance.InstanceView;
 import dev.uapi.reward.RewardReloadListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 public final class UApiServerEvents {
@@ -34,6 +37,22 @@ public final class UApiServerEvents {
         InstanceManager manager = InstanceManager.get(player.getServer());
         manager.findAssignedByPlayer(player.getUUID()).filter(manager::isFromPreviousServerRun)
             .ifPresent(instance -> recover(player, manager, instance));
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onServerStopping(ServerStoppingEvent event) {
+        releaseServer(event.getServer());
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onServerStopped(ServerStoppedEvent event) {
+        // Idempotent final cleanup covers managers recreated by another mod's late stop callback.
+        releaseServer(event.getServer());
+    }
+
+    private static void releaseServer(net.minecraft.server.MinecraftServer server) {
+        InstanceManager.stop(server);
+        tickCounter = 0;
     }
 
     private static void recover(ServerPlayer player, InstanceManager manager, InstanceView instance) {

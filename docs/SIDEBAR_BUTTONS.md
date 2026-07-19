@@ -27,6 +27,7 @@ Players without permission to run these commands will see the normal server-side
 
 ```json
 {
+  "format_version": 2,
   "enabled": true,
   "columns": 2,
   "buttons": [
@@ -57,6 +58,8 @@ Players without permission to run these commands will see the normal server-side
 
 Fields:
 
+- `format_version` is required and must equal `2`. Older or unversioned files are not loaded; delete
+  them to generate a clean current file.
 - `enabled` at root disables the whole sidebar.
 - `columns` controls button columns. Values are clamped to `1..6`.
 - `id` is used only for stable sorting/debugging.
@@ -65,7 +68,8 @@ Fields:
 - `item` is a Minecraft item ID used as the icon.
 - `command` is a single command without requiring `/`.
 - `commands` is an optional array of commands executed in order.
-- `permission_level` is the required vanilla permission level from `0..4`. Use `0` for normal player commands such as `home`, `spawn` or `kit`. Built-in `gamemode`, `weather` and `time` buttons default to `2` for older generated configs that do not contain this field.
+- `permission_level` is required and must be a vanilla permission level from `0..4`. Use `0` for
+  normal player commands such as `home`, `spawn` or `kit`; built-in administrative buttons use `2`.
 - `enabled` on a button disables only that button.
 
 Malformed or missing item IDs render as a barrier icon. Invalid JSON disables the sidebar and logs a warning.

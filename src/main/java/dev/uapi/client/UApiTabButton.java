@@ -6,9 +6,11 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 final class UApiTabButton extends AbstractButton {
     private final UApiScreenTabs.Tab tab;
+    private final ItemStack itemIcon;
     private final boolean selected;
     private final UApiTabSprites customSprites;
     private boolean pressed;
@@ -16,6 +18,7 @@ final class UApiTabButton extends AbstractButton {
     UApiTabButton(int x, int y, UApiScreenTabs.Tab tab, boolean selected, UApiTabSprites customSprites) {
         super(x, y, 24, 24, tab.title());
         this.tab = tab;
+        this.itemIcon = tab.itemIcon() == null ? null : tab.itemIcon().get();
         this.selected = selected;
         this.customSprites = customSprites;
         setTooltip(Tooltip.create(tab.title()));
@@ -55,8 +58,8 @@ final class UApiTabButton extends AbstractButton {
         }
         if (tab.textureIcon() != null) {
             graphics.blit(tab.textureIcon(), getX() + 4, getY() + 4, 0, 0, 16, 16, 16, 16);
-        } else if (tab.itemIcon() != null) {
-            graphics.renderItem(tab.itemIcon().get(), getX() + 4, getY() + 4);
+        } else if (itemIcon != null) {
+            graphics.renderItem(itemIcon, getX() + 4, getY() + 4);
         }
     }
 

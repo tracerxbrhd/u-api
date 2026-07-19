@@ -3,6 +3,10 @@ package dev.uapi.client;
 import dev.uapi.UApi;
 import dev.uapi.client.sidebar.UApiSidebarButton;
 import dev.uapi.client.sidebar.UApiSidebarButtons;
+import dev.uapi.client.hud.UApiHud;
+import dev.uapi.client.overlay.UApiWorldOverlays;
+import dev.uapi.config.UApiClientConfigManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +14,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 @EventBusSubscriber(modid = UApi.MOD_ID, value = Dist.CLIENT)
 public final class UApiClientEvents {
@@ -22,6 +30,33 @@ public final class UApiClientEvents {
         if (event.getScreen() instanceof AbstractContainerScreen<?>) {
             addSidebarButtons(event);
         }
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        UApiHud.tick(Minecraft.getInstance());
+        UApiWorldOverlays.tick();
+    }
+
+    @SubscribeEvent
+    public static void captureWorldProjection(RenderLevelStageEvent event) {
+        UApiWorldOverlays.captureProjection(event);
+    }
+
+    @SubscribeEvent
+    public static void renderRegisteredHud(RenderGuiEvent.Post event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (UApiClientConfigManager.showWorldOverlays()) {
+            UApiWorldOverlays.render(minecraft, event.getGuiGraphics(), event.getPartialTick());
+        }
+        if (UApiClientConfigManager.showRegisteredHud()) {
+            UApiHud.render(minecraft, event.getGuiGraphics(), event.getPartialTick());
+        }
+    }
+
+    @SubscribeEvent
+    public static void clearConnectionOverlays(ClientPlayerNetworkEvent.LoggingOut event) {
+        UApiWorldOverlays.clear();
     }
 
     private static void addScreenTabsIfSupported(ScreenEvent.Init.Post event) {

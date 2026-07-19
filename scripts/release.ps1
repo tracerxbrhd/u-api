@@ -147,7 +147,7 @@ if ($parts.Count -lt 2 -or $parts[0] -ne "0" -or $parts[1] -ne "0") {
 }
 
 if ($modVersion -notmatch "^\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?$") {
-    throw "mod_version '$modVersion' is not supported. Expected SemVer-like value, for example 1.3.0 or 1.4.0-beta."
+    throw "mod_version '$modVersion' is not supported. Expected SemVer-like value, for example 2.0.0 or 2.1.0-beta."
 }
 if ($minecraftVersion -notmatch "^\d+\.\d+(?:\.\d+)?$") {
     throw "minecraft_version '$minecraftVersion' is not supported. Expected value like 1.21.1."

@@ -5,12 +5,14 @@ import dev.uapi.command.UApiCommandRegistry;
 import dev.uapi.accessory.AccessoryIntegrationService;
 import dev.uapi.command.UApiCommands;
 import dev.uapi.config.UApiClientConfig;
+import dev.uapi.config.UApiClientConfigManager;
 import dev.uapi.config.UApiCommonConfig;
 import dev.uapi.config.UApiCommonConfigManager;
 import dev.uapi.config.UApiServerConfig;
 import dev.uapi.reward.RewardRegistry;
 import dev.uapi.server.UApiServerEvents;
 import dev.uapi.creative.UApiCreativeTabs;
+import dev.uapi.worldgen.WorldgenIntegrationRegistry;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -32,10 +34,11 @@ public final class UApi {
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::onConfigLoading);
         modBus.addListener(this::onConfigReloading);
-        container.registerConfig(ModConfig.Type.COMMON, UApiServerConfig.SPEC, "uapi/u-api/server.toml");
+        container.registerConfig(ModConfig.Type.SERVER, UApiServerConfig.SPEC, "uapi/u-api/server.toml");
         container.registerConfig(ModConfig.Type.COMMON, UApiCommonConfig.SPEC, "uapi/u-api/common.toml");
         container.registerConfig(ModConfig.Type.CLIENT, UApiClientConfig.SPEC, "uapi/u-api/client.toml");
         RewardRegistry.bootstrap();
+        WorldgenIntegrationRegistry.bootstrap();
         NeoForge.EVENT_BUS.register(UApiServerEvents.class);
         NeoForge.EVENT_BUS.register(UApiCommandRegistry.class);
     }
@@ -47,10 +50,14 @@ public final class UApi {
     private void onConfigLoading(ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() == UApiCommonConfig.SPEC)
             UApiCommonConfigManager.reloadFromSpec();
+        if (event.getConfig().getSpec() == UApiClientConfig.SPEC)
+            UApiClientConfigManager.reloadFromSpec();
     }
 
     private void onConfigReloading(ModConfigEvent.Reloading event) {
         if (event.getConfig().getSpec() == UApiCommonConfig.SPEC)
             UApiCommonConfigManager.reloadFromSpec();
+        if (event.getConfig().getSpec() == UApiClientConfig.SPEC)
+            UApiClientConfigManager.reloadFromSpec();
     }
 }
