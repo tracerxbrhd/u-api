@@ -7,7 +7,7 @@ import java.util.OptionalInt;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -34,7 +34,7 @@ public final class WorldgenContext {
     private final BiomeSource biomeSource;
     private final RandomState randomState;
     private final LevelHeightAccessor heightAccessor;
-    private final ResourceLocation adapterId;
+    private final Identifier adapterId;
     private final WorldgenCompatibilityAdapter adapter;
     private final WorldgenCapabilities capabilities;
     private final BiomeClassifier classifier;
@@ -48,7 +48,7 @@ public final class WorldgenContext {
         RegistryAccess registryAccess,
         ChunkGenerator generator,
         RandomState randomState,
-        ResourceLocation adapterId,
+        Identifier adapterId,
         WorldgenCompatibilityAdapter adapter,
         WorldgenCapabilities capabilities,
         BiomeClassifier classifier
@@ -120,7 +120,7 @@ public final class WorldgenContext {
         return this.adapter;
     }
 
-    public ResourceLocation adapterId() {
+    public Identifier adapterId() {
         return this.adapterId;
     }
 

@@ -1,9 +1,9 @@
 package dev.uapi.client.overlay;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface WorldOverlayRendererRegistration extends AutoCloseable {
-    ResourceLocation type();
+    Identifier type();
 
     boolean isActive();
 

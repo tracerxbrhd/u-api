@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.LongSupplier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Thread-safe exact sliding-window limiter keyed by actor and action.
@@ -43,7 +43,7 @@ public final class ActorActionRateLimiter {
         this.nanoTime = Objects.requireNonNull(nanoTime, "nanoTime");
     }
 
-    public synchronized RateLimitDecision tryAcquire(UUID actorId, ResourceLocation actionId) {
+    public synchronized RateLimitDecision tryAcquire(UUID actorId, Identifier actionId) {
         Objects.requireNonNull(actorId, "actorId");
         Objects.requireNonNull(actionId, "actionId");
         long now = readNow();
@@ -132,7 +132,7 @@ public final class ActorActionRateLimiter {
         return now >= start && now - start >= duration;
     }
 
-    private record Key(UUID actorId, ResourceLocation actionId) {
+    private record Key(UUID actorId, Identifier actionId) {
         private Key {
             Objects.requireNonNull(actorId, "actorId");
             Objects.requireNonNull(actionId, "actionId");

@@ -3,8 +3,11 @@ package dev.uapi.client.ui.core;
 import dev.uapi.api.diagnostics.UApiDiagnostics;
 import dev.uapi.client.ui.navigation.UIFocusTraversal;
 import dev.uapi.client.ui.theme.UITheme.ColorToken;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -44,7 +47,7 @@ public abstract class UIScreen extends Screen {
     }
 
     /** Draws screen-specific surfaces between the common backdrop and retained component tree. */
-    protected void renderScreen(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderScreen(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     }
 
     @Override
@@ -54,7 +57,7 @@ public abstract class UIScreen extends Screen {
     }
 
     @Override
-    public final void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public final void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         ensureUiTree();
         if (uiRoot.layoutInvalid()) reflowUi();
         long renderStarted = UApiDiagnostics.startTimer();
@@ -62,24 +65,24 @@ public abstract class UIScreen extends Screen {
             renderScreenBackground(graphics, mouseX, mouseY, partialTick);
             renderScreen(graphics, mouseX, mouseY, partialTick);
             uiRoot.render(new UIRenderContext(minecraft, graphics, font, mouseX, mouseY, partialTick));
-            super.render(graphics, mouseX, mouseY, partialTick);
+            super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         } finally {
             UApiDiagnostics.recordUiRenderTime(renderStarted);
         }
     }
 
     /** Draws the theme-backed retained-screen backdrop before any screen content. */
-    protected void renderScreenBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderScreenBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int primary = uiRoot.resolvedTheme().color(ColorToken.BACKGROUND_PRIMARY);
         graphics.fill(0, 0, width, height, primary & 0x00FFFFFF | 0xA8000000);
     }
 
     /**
-     * Vanilla calls this from {@link Screen#render}. The retained lifecycle already rendered its
+     * Vanilla calls this while extracting screen state. The retained lifecycle already rendered its
      * background before its content; running the vanilla blur here would blur the completed tree.
      */
     @Override
-    public final void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public final void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     }
 
     /** First-party management screens keep the integrated server running consistently. */
@@ -89,11 +92,11 @@ public abstract class UIScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubledClick) {
         ensureUiTree();
-        if (uiRoot.mouseClicked(new UIInputContext(mouseX, mouseY, button))) return true;
+        if (uiRoot.mouseClicked(new UIInputContext(event.x(), event.y(), event.button()))) return true;
         clearUiFocus(null);
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubledClick);
     }
 
     @Override
@@ -104,16 +107,17 @@ public abstract class UIScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (focusedUiComponent != null && focusedUiComponent.keyPressed(keyCode, scanCode, modifiers)) return true;
-        if (keyCode == GLFW.GLFW_KEY_TAB && focusNext((modifiers & GLFW.GLFW_MOD_SHIFT) != 0)) return true;
-        return super.keyPressed(keyCode, scanCode, modifiers);
+    public boolean keyPressed(KeyEvent event) {
+        if (focusedUiComponent != null
+            && focusedUiComponent.keyPressed(event.key(), event.scancode(), event.modifiers())) return true;
+        if (event.key() == GLFW.GLFW_KEY_TAB && focusNext((event.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0)) return true;
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
-        return focusedUiComponent != null && focusedUiComponent.charTyped(codePoint, modifiers)
-            || super.charTyped(codePoint, modifiers);
+    public boolean charTyped(CharacterEvent event) {
+        return focusedUiComponent != null && focusedUiComponent.charTyped((char) event.codepoint(), 0)
+            || super.charTyped(event);
     }
 
     @Override

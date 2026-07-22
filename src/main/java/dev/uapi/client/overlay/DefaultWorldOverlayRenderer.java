@@ -18,7 +18,7 @@ final class DefaultWorldOverlayRenderer implements WorldOverlayRenderer {
                 context.font().width(marker.label()) / 2 + 2);
             int labelX = Math.max(halfWidth,
                 Math.min(context.graphics().guiWidth() - halfWidth, context.screenX()));
-            context.graphics().drawCenteredString(context.font(), marker.label(), labelX,
+            context.graphics().centeredText(context.font(), marker.label(), labelX,
                 context.screenY() + radius + 3, 0xFFFFFFFF);
         }
     }

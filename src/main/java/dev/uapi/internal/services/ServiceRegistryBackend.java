@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Internal atomic storage behind the public service facade. */
 public final class ServiceRegistryBackend {
@@ -25,7 +25,7 @@ public final class ServiceRegistryBackend {
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Map<Class<? extends UApiService>, Entry> registrationsByContract = new HashMap<>();
-    private final Map<ResourceLocation, Entry> registrationsById = new HashMap<>();
+    private final Map<Identifier, Entry> registrationsById = new HashMap<>();
     private long nextRegistrationId;
     private long revision;
 
@@ -53,7 +53,7 @@ public final class ServiceRegistryBackend {
                     + " does not implement " + contract.getName()
             );
         }
-        ResourceLocation serviceId = Objects.requireNonNull(service.serviceId(), "service.serviceId()");
+        Identifier serviceId = Objects.requireNonNull(service.serviceId(), "service.serviceId()");
 
         ReentrantReadWriteLock.WriteLock writeLock = this.lock.writeLock();
         writeLock.lock();
@@ -172,7 +172,7 @@ public final class ServiceRegistryBackend {
     private record Entry(
         long registrationId,
         Class<? extends UApiService> contract,
-        ResourceLocation serviceId,
+        Identifier serviceId,
         ServiceScope scope,
         UApiService service
     ) {
@@ -194,7 +194,7 @@ public final class ServiceRegistryBackend {
         }
 
         @Override
-        public ResourceLocation serviceId() {
+        public Identifier serviceId() {
             return this.entry.serviceId();
         }
 

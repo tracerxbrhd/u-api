@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class ActorActionRateLimiterTest {
@@ -67,7 +67,7 @@ final class ActorActionRateLimiterTest {
         assertThrows(IllegalStateException.class, () -> limiter.tryAcquire(actor, id("action")));
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("test", path);
     }
 }

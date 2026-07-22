@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.LongSupplier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Opt-in low-overhead instrumentation shared by U-API modules.
@@ -36,7 +36,7 @@ public final class UApiDiagnostics {
     private static final AtomicLong PLAYER_HEAD_ENTRIES = new AtomicLong();
     private static final LongAdder INBOUND_PACKETS = new LongAdder();
     private static final LongAdder OUTBOUND_PACKETS = new LongAdder();
-    private static final Map<ResourceLocation, GaugeEntry> GAUGES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, GaugeEntry> GAUGES = new ConcurrentHashMap<>();
     private static final AtomicLong NEXT_GAUGE_ID = new AtomicLong();
     private static volatile boolean enabled;
     private static volatile long enabledSinceNanos = System.nanoTime();
@@ -125,7 +125,7 @@ public final class UApiDiagnostics {
     }
 
     /** Registers a scalar extension such as a consumer-owned loaded-chunk count. */
-    public static DiagnosticRegistration registerGauge(ResourceLocation id, LongSupplier supplier) {
+    public static DiagnosticRegistration registerGauge(Identifier id, LongSupplier supplier) {
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(supplier, "supplier");
         GaugeEntry entry = new GaugeEntry(NEXT_GAUGE_ID.incrementAndGet(), supplier);
@@ -140,7 +140,7 @@ public final class UApiDiagnostics {
         long outbound = OUTBOUND_PACKETS.sum();
         long sampledAt = enabled ? System.nanoTime() : collectionStoppedNanos;
         double seconds = Math.max(0.001, (sampledAt - enabledSinceNanos) / 1_000_000_000.0);
-        Map<ResourceLocation, Long> gauges = new LinkedHashMap<>();
+        Map<Identifier, Long> gauges = new LinkedHashMap<>();
         GAUGES.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
             try {
                 gauges.put(entry.getKey(), entry.getValue().supplier().getAsLong());
@@ -196,17 +196,17 @@ public final class UApiDiagnostics {
     }
 
     private static final class GaugeHandle implements DiagnosticRegistration {
-        private final ResourceLocation id;
+        private final Identifier id;
         private final GaugeEntry entry;
         private final AtomicBoolean closed = new AtomicBoolean();
 
-        private GaugeHandle(ResourceLocation id, GaugeEntry entry) {
+        private GaugeHandle(Identifier id, GaugeEntry entry) {
             this.id = id;
             this.entry = entry;
         }
 
         @Override
-        public ResourceLocation id() {
+        public Identifier id() {
             return id;
         }
 

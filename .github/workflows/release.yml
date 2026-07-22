@@ -23,11 +23,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Java 21
+      - name: Set up Java 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -63,35 +63,27 @@ jobs:
             exit 1
           fi
 
-          release_tag="v${mod_version}+mc${minecraft_version}"
-          beta_tag="v${mod_version}-beta+mc${minecraft_version}"
-          alpha_tag="v${mod_version}-alpha+mc${minecraft_version}"
+          expected_tag="v${mod_version}+mc${minecraft_version}"
+          if [[ "${tag}" != "${expected_tag}" ]]; then
+            echo "Tag '${tag}' does not match gradle.properties." >&2
+            echo "Expected: ${expected_tag}" >&2
+            exit 1
+          fi
 
-          if [[ "${tag}" == "${release_tag}" ]]; then
-            channel="release"
-            version_number="${mod_version}+mc${minecraft_version}"
-            release_title="${mod_name} ${mod_version} for Minecraft ${minecraft_version}"
-            prerelease="false"
-            featured="true"
-          elif [[ "${tag}" == "${beta_tag}" ]]; then
-            channel="beta"
-            version_number="${mod_version}-beta+mc${minecraft_version}"
-            release_title="${mod_name} ${mod_version} Beta for Minecraft ${minecraft_version}"
+          version_number="${mod_version}+mc${minecraft_version}"
+          release_title="${mod_name} ${mod_version} for Minecraft ${minecraft_version}"
+          if [[ "${mod_version}" == *-alpha* ]]; then
+            channel="alpha"
             prerelease="true"
             featured="false"
-          elif [[ "${tag}" == "${alpha_tag}" ]]; then
-            channel="alpha"
-            version_number="${mod_version}-alpha+mc${minecraft_version}"
-            release_title="${mod_name} ${mod_version} Alpha for Minecraft ${minecraft_version}"
+          elif [[ "${mod_version}" == *-beta* || "${mod_version}" == *-rc* ]]; then
+            channel="beta"
             prerelease="true"
             featured="false"
           else
-            echo "Tag '${tag}' does not match gradle.properties." >&2
-            echo "Expected one of:" >&2
-            echo "  ${release_tag}" >&2
-            echo "  ${beta_tag}" >&2
-            echo "  ${alpha_tag}" >&2
-            exit 1
+            channel="release"
+            prerelease="false"
+            featured="true"
           fi
 
           {
@@ -245,7 +237,7 @@ jobs:
               "\n\n## Compatibility\n\n"
               f"- Minecraft: {minecraft_version}\n"
               "- Loader: NeoForge\n"
-              "- Java: 21\n"
+              "- Java: 25\n"
           )
           pathlib.Path("release_notes.md").write_text(notes.rstrip() + compatibility, encoding="utf-8")
           PY
@@ -264,7 +256,7 @@ jobs:
           changelog-file: release_notes.md
           loaders: neoforge
           game-versions: ${{ steps.meta.outputs.minecraft_version }}
-          java: 21
+          java: 25
 
       - name: Publish to CurseForge
         if: env.HAS_CURSEFORGE == 'true'
@@ -280,7 +272,7 @@ jobs:
           changelog-file: release_notes.md
           loaders: neoforge
           game-versions: ${{ steps.meta.outputs.minecraft_version }}
-          java: 21
+          java: 25
 
       - name: Create GitHub Release
         id: github_release

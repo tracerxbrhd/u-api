@@ -4,7 +4,7 @@ import dev.uapi.api.services.UApiService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Server-authoritative ready-check service contract.
@@ -26,7 +26,7 @@ public interface ReadyCheckService extends UApiService {
         ReadyCheckParticipantState response
     );
 
-    ReadyCheckUpdateResult cancelReadyCheck(UUID checkId, UUID actorId, ResourceLocation reasonCode);
+    ReadyCheckUpdateResult cancelReadyCheck(UUID checkId, UUID actorId, Identifier reasonCode);
 
     /** Expires all checks due according to the implementation's authoritative server clock. */
     List<ReadyCheckUpdateResult> expireReadyChecks();

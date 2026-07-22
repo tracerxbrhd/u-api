@@ -80,7 +80,7 @@ public final class UITabs<T> extends UIComponent {
             if (index == selectedIndex) context.graphics().fill(x, bounds().bottom() - 2, x + width, bounds().bottom(),
                 theme().color(ColorToken.ACCENT_PRIMARY));
             Component label = tabs.get(index).label();
-            context.graphics().drawString(context.font(), label,
+            context.graphics().text(context.font(), label,
                 x + (width - context.font().width(label)) / 2,
                 bounds().y() + (bounds().height() - context.font().lineHeight) / 2,
                 theme().color(index == selectedIndex ? ColorToken.TEXT_PRIMARY : ColorToken.TEXT_SECONDARY), false);

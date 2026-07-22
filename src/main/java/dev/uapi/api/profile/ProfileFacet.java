@@ -3,11 +3,11 @@ package dev.uapi.api.profile;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Bounded, immutable, UI-safe projection contributed by an optional mod. */
 public record ProfileFacet(
-    ResourceLocation id,
+    Identifier id,
     ProfileFacetText title,
     Optional<ProfileFacetIcon> icon,
     ProfileFacetAudience audience,
@@ -30,7 +30,7 @@ public record ProfileFacet(
         fields.forEach(field -> Objects.requireNonNull(field, "fields must not contain null"));
     }
 
-    public ProfileFacet(ResourceLocation id, ProfileFacetText title, ProfileFacetAudience audience,
+    public ProfileFacet(Identifier id, ProfileFacetText title, ProfileFacetAudience audience,
                         int displayOrder, List<ProfileFacetField> fields) {
         this(id, title, Optional.empty(), audience, displayOrder, fields);
     }

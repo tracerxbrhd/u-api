@@ -1,10 +1,13 @@
 package dev.uapi.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -25,41 +28,43 @@ final class UApiTabButton extends AbstractButton {
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         if (selected) return;
         setFocused(false);
         var minecraft = Minecraft.getInstance();
         var target = tab.opener().apply(minecraft);
-        if (target != null) minecraft.setScreen(target);
+        if (target != null) minecraft.setScreenAndShow(target);
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
+    public void onClick(MouseButtonEvent event, boolean doubledClick) {
         pressed = true;
-        super.onClick(mouseX, mouseY, button);
+        super.onClick(event, doubledClick);
     }
 
     @Override
-    public void onRelease(double mouseX, double mouseY) {
+    public void onRelease(MouseButtonEvent event) {
         pressed = false;
-        super.onRelease(mouseX, mouseY);
+        super.onRelease(event);
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Focus remains available to keyboard navigation, but is never reused as a persistent hover state.
         boolean hovered = isMouseOver(mouseX, mouseY);
         if (customSprites == null) {
-            graphics.blitSprite(SPRITES.get(active, hovered), getX(), getY(), getWidth(), getHeight());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITES.get(active, hovered),
+                getX(), getY(), getWidth(), getHeight());
         } else {
             var sprite = !active ? customSprites.disabled() : selected ? customSprites.selected()
                 : pressed ? customSprites.pressed() : hovered ? customSprites.hovered() : customSprites.normal();
-            graphics.blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, getX(), getY(), getWidth(), getHeight());
         }
         if (tab.textureIcon() != null) {
-            graphics.blit(tab.textureIcon(), getX() + 4, getY() + 4, 0, 0, 16, 16, 16, 16);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, tab.textureIcon(),
+                getX() + 4, getY() + 4, 0, 0, 16, 16, 16, 16);
         } else if (itemIcon != null) {
-            graphics.renderItem(itemIcon, getX() + 4, getY() + 4);
+            graphics.item(itemIcon, getX() + 4, getY() + 4);
         }
     }
 

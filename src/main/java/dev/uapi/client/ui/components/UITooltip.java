@@ -30,7 +30,7 @@ public final class UITooltip extends UIComponent {
         context.graphics().fill(x, y, x + width, y + height, theme().color(ColorToken.BACKGROUND_PRIMARY));
         UIRenderPrimitives.border(context.graphics(), new UIBounds(x, y, width, height),
             theme().color(ColorToken.BORDER_DEFAULT));
-        context.graphics().drawString(context.font(), text, x + 4, y + 3,
+        context.graphics().text(context.font(), text, x + 4, y + 3,
             theme().color(ColorToken.TEXT_PRIMARY), false);
     }
 }

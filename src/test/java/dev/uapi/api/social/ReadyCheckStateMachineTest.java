@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class ReadyCheckStateMachineTest {
@@ -140,7 +140,7 @@ final class ReadyCheckStateMachineTest {
         return new ReadyCheckStartRequest(GROUP, INITIATOR, participants, Duration.ofSeconds(30));
     }
 
-    private static ResourceLocation reason(String path) {
-        return ResourceLocation.fromNamespaceAndPath("test", "ready_check/" + path);
+    private static Identifier reason(String path) {
+        return Identifier.fromNamespaceAndPath("test", "ready_check/" + path);
     }
 }

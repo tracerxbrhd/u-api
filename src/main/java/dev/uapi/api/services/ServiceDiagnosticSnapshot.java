@@ -2,7 +2,7 @@ package dev.uapi.api.services;
 
 import java.util.List;
 import java.util.Objects;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Immutable, point-in-time view of all active U-API service registrations. */
 public record ServiceDiagnosticSnapshot(long revision, List<Entry> registrations) {
@@ -22,7 +22,7 @@ public record ServiceDiagnosticSnapshot(long revision, List<Entry> registrations
     /** Immutable diagnostic description which deliberately does not expose the service instance. */
     public record Entry(
         String contractType,
-        ResourceLocation serviceId,
+        Identifier serviceId,
         ServiceScope scope,
         String implementationType
     ) {

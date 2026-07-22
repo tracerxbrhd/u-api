@@ -31,9 +31,9 @@ public final class UIPlayerCard extends UIComponent {
             headSize, headSize);
         if (headSize > 0) headRenderer.render(context, headBounds, model.playerId());
         int textX = headBounds.right() + 5;
-        context.graphics().drawString(context.font(), model.displayName(), textX, bounds().y() + 4,
+        context.graphics().text(context.font(), model.displayName(), textX, bounds().y() + 4,
             theme().color(ColorToken.TEXT_PRIMARY), false);
-        context.graphics().drawString(context.font(), model.status(), textX,
+        context.graphics().text(context.font(), model.status(), textX,
             bounds().y() + 5 + context.font().lineHeight,
             theme().color(ColorToken.TEXT_SECONDARY), false);
         int barY = bounds().bottom() - 4;

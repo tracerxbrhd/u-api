@@ -1,7 +1,7 @@
 package dev.uapi.integration;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,29 +15,29 @@ import java.util.Optional;
  * Addons may register rules without linking their UI implementation to SOUL ASCENSION internals.
  */
 public final class AttributeDisplayRegistry {
-    public record Category(ResourceLocation id, Component title, int order) {}
-    public record Rule(ResourceLocation categoryId, Boolean visible) {}
+    public record Category(Identifier id, Component title, int order) {}
+    public record Rule(Identifier categoryId, Boolean visible) {}
 
-    private static final Map<ResourceLocation, Category> CATEGORIES = new LinkedHashMap<>();
-    private static final Map<ResourceLocation, Rule> RULES = new LinkedHashMap<>();
+    private static final Map<Identifier, Category> CATEGORIES = new LinkedHashMap<>();
+    private static final Map<Identifier, Rule> RULES = new LinkedHashMap<>();
 
     private AttributeDisplayRegistry() {}
 
-    public static synchronized void registerCategory(ResourceLocation id, Component title, int order) {
+    public static synchronized void registerCategory(Identifier id, Component title, int order) {
         CATEGORIES.put(id, new Category(id, title, order));
     }
 
     /** A null visible value leaves visibility under the user's client configuration. */
-    public static synchronized void registerAttribute(ResourceLocation attributeId, ResourceLocation categoryId,
+    public static synchronized void registerAttribute(Identifier attributeId, Identifier categoryId,
                                                       Boolean visible) {
         RULES.put(attributeId, new Rule(categoryId, visible));
     }
 
-    public static synchronized Optional<Rule> rule(ResourceLocation attributeId) {
+    public static synchronized Optional<Rule> rule(Identifier attributeId) {
         return Optional.ofNullable(RULES.get(attributeId));
     }
 
-    public static synchronized Optional<Category> category(ResourceLocation id) {
+    public static synchronized Optional<Category> category(Identifier id) {
         return Optional.ofNullable(CATEGORIES.get(id));
     }
 

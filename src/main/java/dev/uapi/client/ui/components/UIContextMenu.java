@@ -55,7 +55,7 @@ public final class UIContextMenu extends UIComponent {
                 context.graphics().fill(bounds().x() + 1, y, bounds().right() - 1, y + rowHeight,
                     theme().color(ColorToken.BACKGROUND_PANEL));
             }
-            context.graphics().drawString(context.font(), action.label(), bounds().x() + 5,
+            context.graphics().text(context.font(), action.label(), bounds().x() + 5,
                 y + (rowHeight - context.font().lineHeight) / 2,
                 theme().color(action.enabled() ? ColorToken.TEXT_PRIMARY : ColorToken.TEXT_MUTED), false);
         }

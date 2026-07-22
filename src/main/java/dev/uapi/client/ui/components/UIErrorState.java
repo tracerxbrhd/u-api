@@ -44,9 +44,9 @@ public final class UIErrorState extends UIComponent {
     protected void renderComponent(UIRenderContext context) {
         int centerX = bounds().x() + bounds().width() / 2;
         int y = bounds().y() + bounds().height() / 2 - context.font().lineHeight;
-        context.graphics().drawCenteredString(context.font(), message, centerX, y,
+        context.graphics().centeredText(context.font(), message, centerX, y,
             theme().color(ColorToken.ACCENT_DANGER));
-        context.graphics().drawCenteredString(context.font(), retryLabel, centerX,
+        context.graphics().centeredText(context.font(), retryLabel, centerX,
             y + context.font().lineHeight + 5, theme().color(ColorToken.TEXT_SECONDARY));
     }
 }

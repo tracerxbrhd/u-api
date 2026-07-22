@@ -56,7 +56,7 @@ public final class UIToastManager extends UIComponent {
             };
             context.graphics().fill(x, y, x + width, y + height, theme().color(ColorToken.BACKGROUND_PRIMARY));
             context.graphics().fill(x, y, x + 3, y + height, accent);
-            context.graphics().drawString(context.font(), toast.message(), x + 8,
+            context.graphics().text(context.font(), toast.message(), x + 8,
                 y + (height - context.font().lineHeight) / 2, theme().color(ColorToken.TEXT_PRIMARY), false);
             y += height + 4;
         }

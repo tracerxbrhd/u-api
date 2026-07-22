@@ -6,15 +6,15 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /** Immutable marker snapshot. Reusing an ID lets packet deltas interpolate to a new position. */
 public final class WorldOverlayMarker {
     private final UUID id;
-    private final ResourceLocation type;
-    private final ResourceLocation visibilityKey;
+    private final Identifier type;
+    private final Identifier visibilityKey;
     private final ResourceKey<Level> dimension;
     private final Vec3 position;
     private final Component label;
@@ -49,8 +49,8 @@ public final class WorldOverlayMarker {
     }
 
     public UUID id() { return id; }
-    public ResourceLocation type() { return type; }
-    public ResourceLocation visibilityKey() { return visibilityKey; }
+    public Identifier type() { return type; }
+    public Identifier visibilityKey() { return visibilityKey; }
     public ResourceKey<Level> dimension() { return dimension; }
     public Vec3 position() { return position; }
     public Component label() { return label; }
@@ -80,21 +80,21 @@ public final class WorldOverlayMarker {
         return toBuilder().dimension(dimension).position(position).build();
     }
 
-    public static Builder builder(UUID id, ResourceLocation type, ResourceKey<Level> dimension, Vec3 position) {
+    public static Builder builder(UUID id, Identifier type, ResourceKey<Level> dimension, Vec3 position) {
         return new Builder(id, type, dimension, position);
     }
 
-    public static Builder atBlock(UUID id, ResourceLocation type, ResourceKey<Level> dimension, BlockPos position) {
+    public static Builder atBlock(UUID id, Identifier type, ResourceKey<Level> dimension, BlockPos position) {
         Objects.requireNonNull(position, "position");
         return builder(id, type, dimension, Vec3.atCenterOf(position));
     }
 
     public static final class Builder {
         private final UUID id;
-        private final ResourceLocation type;
+        private final Identifier type;
         private ResourceKey<Level> dimension;
         private Vec3 position;
-        private ResourceLocation visibilityKey;
+        private Identifier visibilityKey;
         private Component label = Component.empty();
         private double minimumDistance;
         private double maximumDistance = 256;
@@ -107,7 +107,7 @@ public final class WorldOverlayMarker {
         private int priority;
         private WorldOverlayLodPolicy lodPolicy = WorldOverlayLodPolicy.DEFAULT;
 
-        private Builder(UUID id, ResourceLocation type, ResourceKey<Level> dimension, Vec3 position) {
+        private Builder(UUID id, Identifier type, ResourceKey<Level> dimension, Vec3 position) {
             this.id = Objects.requireNonNull(id, "id");
             this.type = Objects.requireNonNull(type, "type");
             this.dimension = Objects.requireNonNull(dimension, "dimension");
@@ -117,7 +117,7 @@ public final class WorldOverlayMarker {
             }
         }
 
-        public Builder visibilityKey(ResourceLocation visibilityKey) { this.visibilityKey = Objects.requireNonNull(visibilityKey, "visibilityKey"); return this; }
+        public Builder visibilityKey(Identifier visibilityKey) { this.visibilityKey = Objects.requireNonNull(visibilityKey, "visibilityKey"); return this; }
         public Builder dimension(ResourceKey<Level> dimension) { this.dimension = Objects.requireNonNull(dimension, "dimension"); return this; }
         public Builder position(Vec3 position) {
             this.position = requireFinitePosition(position);

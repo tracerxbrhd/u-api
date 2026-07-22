@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class ServiceRegistryBackendTest {
@@ -158,8 +158,8 @@ final class ServiceRegistryBackendTest {
         }
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("u_api_test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("u_api_test", path);
     }
 
     private interface PrimaryService extends UApiService {
@@ -168,9 +168,9 @@ final class ServiceRegistryBackendTest {
     private interface SecondaryService extends UApiService {
     }
 
-    private record PrimaryImplementation(ResourceLocation serviceId) implements PrimaryService {
+    private record PrimaryImplementation(Identifier serviceId) implements PrimaryService {
     }
 
-    private record SecondaryImplementation(ResourceLocation serviceId) implements SecondaryService {
+    private record SecondaryImplementation(Identifier serviceId) implements SecondaryService {
     }
 }

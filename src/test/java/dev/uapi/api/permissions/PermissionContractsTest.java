@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class PermissionContractsTest {
@@ -23,8 +23,8 @@ final class PermissionContractsTest {
 
     @Test
     void representsAllowAndDenyWithStableReasonKeys() {
-        ResourceLocation allowedReason = id("role_allows");
-        ResourceLocation deniedReason = id("missing_permission");
+        Identifier allowedReason = id("role_allows");
+        Identifier deniedReason = id("missing_permission");
 
         PermissionDecision allowed = PermissionDecision.allowed(allowedReason);
         PermissionDecision denied = PermissionDecision.denied(deniedReason);
@@ -54,7 +54,7 @@ final class PermissionContractsTest {
             .withTarget(target).withResource(resource));
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("permission_test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("permission_test", path);
     }
 }

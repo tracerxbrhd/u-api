@@ -63,7 +63,7 @@ public final class UICheckbox extends UIComponent {
             theme().color(focused() ? ColorToken.BORDER_FOCUSED : ColorToken.BORDER_DEFAULT));
         if (checked && size >= 7) context.graphics().fill(bounds().x() + 3, y + 3, bounds().x() + size - 3, y + size - 3,
             theme().color(ColorToken.ACCENT_SUCCESS));
-        context.graphics().drawString(context.font(), label, bounds().x() + size + 5,
+        context.graphics().text(context.font(), label, bounds().x() + size + 5,
             bounds().y() + (bounds().height() - context.font().lineHeight) / 2,
             theme().color(enabled() ? ColorToken.TEXT_PRIMARY : ColorToken.TEXT_MUTED), false);
     }

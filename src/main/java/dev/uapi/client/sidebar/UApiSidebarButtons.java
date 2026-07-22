@@ -10,7 +10,9 @@ import dev.uapi.UApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.permissions.PermissionCheck;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -167,15 +169,15 @@ public final class UApiSidebarButtons {
     }
 
     private static ItemStack iconStack(String itemId) {
-        ResourceLocation id = parseId(itemId);
+        Identifier id = parseId(itemId);
         if (id == null) return new ItemStack(Items.BARRIER);
         Item item = BuiltInRegistries.ITEM.getOptional(id).orElse(Items.BARRIER);
         return new ItemStack(item);
     }
 
-    private static ResourceLocation parseId(String value) {
+    private static Identifier parseId(String value) {
         try {
-            return ResourceLocation.parse(value.toLowerCase(Locale.ROOT));
+            return Identifier.parse(value.toLowerCase(Locale.ROOT));
         } catch (RuntimeException exception) {
             return null;
         }
@@ -230,7 +232,8 @@ public final class UApiSidebarButtons {
     public static boolean isAllowed(ButtonDefinition button) {
         Minecraft minecraft = Minecraft.getInstance();
         if (button.permissionLevel() <= 0) return true;
-        return minecraft.player != null && minecraft.player.hasPermissions(button.permissionLevel());
+        return minecraft.player != null && permissionCheck(button.permissionLevel())
+            .check(minecraft.player.permissions());
     }
 
     public static Component tooltip(ButtonDefinition button) {
@@ -243,13 +246,23 @@ public final class UApiSidebarButtons {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.getConnection() == null || minecraft.player == null) return;
         if (!isAllowed(button)) {
-            minecraft.player.displayClientMessage(Component.literal(
-                "You do not have permission to use this helper button."), true);
+            minecraft.player.sendOverlayMessage(Component.literal(
+                "You do not have permission to use this helper button."));
             return;
         }
         for (String command : button.commands()) {
             minecraft.getConnection().sendCommand(command);
         }
+    }
+
+    private static PermissionCheck permissionCheck(int level) {
+        return switch (level) {
+            case 0 -> Commands.LEVEL_ALL;
+            case 1 -> Commands.LEVEL_MODERATORS;
+            case 2 -> Commands.LEVEL_GAMEMASTERS;
+            case 3 -> Commands.LEVEL_ADMINS;
+            default -> Commands.LEVEL_OWNERS;
+        };
     }
 
     public record ButtonDefinition(String id, int order, Component title, ItemStack icon, List<String> commands,

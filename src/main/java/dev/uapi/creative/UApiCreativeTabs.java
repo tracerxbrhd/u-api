@@ -4,7 +4,7 @@ import dev.uapi.UApi;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,11 +35,11 @@ public final class UApiCreativeTabs {
     }
 
     public static final class Registrar {
-        private record Entry(ResourceLocation itemId, int order, BooleanSupplier visible) {}
+        private record Entry(Identifier itemId, int order, BooleanSupplier visible) {}
 
         private final String modId;
         private final DeferredRegister<CreativeModeTab> tabs;
-        private final Map<ResourceLocation, Entry> entries = new ConcurrentHashMap<>();
+        private final Map<Identifier, Entry> entries = new ConcurrentHashMap<>();
         private final DeferredHolder<CreativeModeTab, CreativeModeTab> tab;
         private boolean registered;
 
@@ -54,7 +54,7 @@ public final class UApiCreativeTabs {
                     .sorted(Comparator.comparingInt(Entry::order)
                         .thenComparing(entry -> entry.itemId().toString()))
                     .forEach(entry -> {
-                        Item item = BuiltInRegistries.ITEM.get(entry.itemId());
+                        Item item = BuiltInRegistries.ITEM.getValue(entry.itemId());
                         // ItemLike acceptance constructs a fresh, component-less ItemStack. Use the
                         // item's canonical default stack so custom potion contents and other default
                         // data components survive creative-tab population.
@@ -71,11 +71,11 @@ public final class UApiCreativeTabs {
 
         public DeferredHolder<CreativeModeTab, CreativeModeTab> tab() { return tab; }
 
-        public void add(ResourceLocation itemId, int order) {
+        public void add(Identifier itemId, int order) {
             add(itemId, order, () -> true);
         }
 
-        public void add(ResourceLocation itemId, int order, BooleanSupplier visible) {
+        public void add(Identifier itemId, int order, BooleanSupplier visible) {
             if (!itemId.getNamespace().equals(modId))
                 throw new IllegalArgumentException("Creative tab " + modId + " cannot contain " + itemId);
             Entry previous = entries.putIfAbsent(itemId, new Entry(itemId, order, visible));

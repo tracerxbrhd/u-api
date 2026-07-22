@@ -8,12 +8,12 @@ import dev.uapi.client.ui.theme.UITheme.ColorToken;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 
 /** Virtualized permission matrix suitable for role editors. */
 public final class UIPermissionGrid extends UIComponent {
-    public record Entry(ResourceLocation key, Component label, boolean granted, boolean editable) {
+    public record Entry(Identifier key, Component label, boolean granted, boolean editable) {
         public Entry {
             Objects.requireNonNull(key, "key");
             Objects.requireNonNull(label, "label");
@@ -79,7 +79,7 @@ public final class UIPermissionGrid extends UIComponent {
                 UIBounds row = new UIBounds(bounds().x(), y, bounds().width(), rowHeight);
                 context.graphics().fill(row.x(), row.y(), row.right(), row.bottom(), theme().color(index % 2 == 0
                     ? ColorToken.BACKGROUND_SECONDARY : ColorToken.BACKGROUND_PANEL));
-                context.graphics().drawString(context.font(), entry.label(), row.x() + 4,
+                context.graphics().text(context.font(), entry.label(), row.x() + 4,
                     row.y() + (row.height() - context.font().lineHeight) / 2,
                     theme().color(entry.editable() ? ColorToken.TEXT_PRIMARY : ColorToken.TEXT_MUTED), false);
                 int indicator = entry.granted() ? theme().color(ColorToken.ACCENT_SUCCESS)

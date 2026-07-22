@@ -15,7 +15,7 @@ public final class UApiCommands {
     private UApiCommands() {}
 
     public static LiteralArgumentBuilder<CommandSourceStack> create() {
-        return Commands.literal("api").requires(source -> source.hasPermission(2))
+        return Commands.literal("api").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .then(Commands.literal("status").executes(context -> {
                 int count = InstanceManager.get(context.getSource().getServer()).all().size();
                 context.getSource().sendSuccess(() -> Component.literal("U-API is active. Instances: " + count), false);

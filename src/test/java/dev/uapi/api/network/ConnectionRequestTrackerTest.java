@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class ConnectionRequestTrackerTest {
@@ -94,7 +94,7 @@ final class ConnectionRequestTrackerTest {
         return new UUID(0L, suffix);
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("test", path);
     }
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0-beta.1 - 2026-07-22
+
+- Ported U-API to Minecraft 26.2, NeoForge 26.2.0.28-beta and Java 25.
+- Migrated identifiers, retained GUI extraction, input events, permissions and server reload events
+  to their 26.2 APIs.
+- Migrated instance persistence to codec-backed `SavedDataType` storage.
+- Updated JEI compile-time integration to the Minecraft 26.2 line.
+- Added pull-request CI and updated tagged GitHub/Modrinth releases for prerelease versions.
+- This is a clean-install beta line; 1.21.1 worlds and configuration are not migrated.
+
 ## 2.0.0 - 2026-07-13
 
 - Added lifecycle-scoped public service discovery without dependencies on consuming mods.

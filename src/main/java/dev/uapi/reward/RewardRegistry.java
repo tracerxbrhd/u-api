@@ -5,7 +5,7 @@ import dev.uapi.UApi;
 import dev.uapi.config.UApiServerConfig;
 import dev.uapi.event.UApiEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class RewardRegistry {
-    public static final ResourceLocation ITEM = ResourceLocation.fromNamespaceAndPath("minecraft", "item");
-    public static final ResourceLocation EXPERIENCE = ResourceLocation.fromNamespaceAndPath("minecraft", "experience");
-    private static final Map<ResourceLocation, RewardProvider> PROVIDERS = new ConcurrentHashMap<>();
-    private static volatile Map<ResourceLocation, RewardPool> pools = Map.of();
+    public static final Identifier ITEM = Identifier.fromNamespaceAndPath("minecraft", "item");
+    public static final Identifier EXPERIENCE = Identifier.fromNamespaceAndPath("minecraft", "experience");
+    private static final Map<Identifier, RewardProvider> PROVIDERS = new ConcurrentHashMap<>();
+    private static volatile Map<Identifier, RewardPool> pools = Map.of();
     private static boolean bootstrapped;
 
     private RewardRegistry() {}
@@ -34,17 +34,17 @@ public final class RewardRegistry {
         registerProvider(EXPERIENCE, RewardRegistry::grantExperience);
     }
 
-    public static void registerProvider(ResourceLocation type, RewardProvider provider) {
+    public static void registerProvider(Identifier type, RewardProvider provider) {
         if (PROVIDERS.putIfAbsent(type, provider) != null)
             throw new IllegalStateException("Reward provider already registered: " + type);
     }
 
-    public static void replacePools(Map<ResourceLocation, RewardPool> loaded) {
+    public static void replacePools(Map<Identifier, RewardPool> loaded) {
         pools = Map.copyOf(loaded);
         UApi.LOGGER.info("Loaded {} U-API reward pools", pools.size());
     }
 
-    public static boolean grant(ResourceLocation poolId, RewardContext context) {
+    public static boolean grant(Identifier poolId, RewardContext context) {
         RewardPool pool = pools.get(poolId);
         if (pool == null) return false;
         RandomSource random = context.player().getRandom();
@@ -76,7 +76,7 @@ public final class RewardRegistry {
     }
 
     private static boolean grantItem(RewardContext context, JsonObject data, RandomSource random) {
-        Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(data, "id")));
+        Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(GsonHelper.getAsString(data, "id")));
         if (item == Items.AIR) return false;
         int min = Math.max(1, GsonHelper.getAsInt(data, "min", 1));
         int max = Math.max(min, GsonHelper.getAsInt(data, "max", min));

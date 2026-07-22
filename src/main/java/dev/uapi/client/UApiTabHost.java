@@ -1,10 +1,10 @@
 package dev.uapi.client;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Implemented by custom screens that want the shared U-API screen navigation. */
 public interface UApiTabHost {
-    ResourceLocation uApiTabId();
+    Identifier uApiTabId();
     int uApiTabLeft();
     int uApiTabTop();
 

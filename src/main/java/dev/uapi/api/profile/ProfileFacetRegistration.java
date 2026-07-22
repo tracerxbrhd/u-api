@@ -1,10 +1,10 @@
 package dev.uapi.api.profile;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Idempotent lifecycle handle for a server-scoped profile facet provider. */
 public interface ProfileFacetRegistration extends AutoCloseable {
-    ResourceLocation providerId();
+    Identifier providerId();
 
     boolean active();
 

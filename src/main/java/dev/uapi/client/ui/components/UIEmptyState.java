@@ -19,8 +19,8 @@ public final class UIEmptyState extends UIComponent {
     protected void renderComponent(UIRenderContext context) {
         int centerX = bounds().x() + bounds().width() / 2;
         int y = bounds().y() + bounds().height() / 2 - context.font().lineHeight;
-        context.graphics().drawCenteredString(context.font(), title, centerX, y, theme().color(ColorToken.TEXT_PRIMARY));
-        context.graphics().drawCenteredString(context.font(), description, centerX,
+        context.graphics().centeredText(context.font(), title, centerX, y, theme().color(ColorToken.TEXT_PRIMARY));
+        context.graphics().centeredText(context.font(), description, centerX,
             y + context.font().lineHeight + 4, theme().color(ColorToken.TEXT_MUTED));
     }
 }

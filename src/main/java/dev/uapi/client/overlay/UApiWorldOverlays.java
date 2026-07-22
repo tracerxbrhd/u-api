@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
@@ -27,9 +27,9 @@ public final class UApiWorldOverlays {
     private static final Object LOCK = new Object();
     private static final Map<UUID, Entry> MARKERS = new HashMap<>();
     private static final Map<UUID, VisibilitySample> OCCLUSION_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RendererEntry> RENDERERS = new HashMap<>();
-    private static final Map<ResourceLocation, Boolean> VISIBILITY = new HashMap<>();
-    private static final Set<ResourceLocation> FAILED_RENDERERS = new HashSet<>();
+    private static final Map<Identifier, RendererEntry> RENDERERS = new HashMap<>();
+    private static final Map<Identifier, Boolean> VISIBILITY = new HashMap<>();
+    private static final Set<Identifier> FAILED_RENDERERS = new HashSet<>();
     private static final AtomicLong NEXT_REGISTRATION_ID = new AtomicLong();
     private static volatile WorldOverlayProjection projection;
     private static volatile WorldOverlayVisibilityResolver visibilityResolver =
@@ -102,19 +102,19 @@ public final class UApiWorldOverlays {
     }
 
     /** Client preference keyed independently from renderer type. */
-    public static void setVisibility(ResourceLocation visibilityKey, boolean visible) {
+    public static void setVisibility(Identifier visibilityKey, boolean visible) {
         synchronized (LOCK) {
             VISIBILITY.put(Objects.requireNonNull(visibilityKey, "visibilityKey"), visible);
         }
     }
 
-    public static boolean isVisible(ResourceLocation visibilityKey) {
+    public static boolean isVisible(Identifier visibilityKey) {
         synchronized (LOCK) {
             return VISIBILITY.getOrDefault(Objects.requireNonNull(visibilityKey, "visibilityKey"), true);
         }
     }
 
-    public static WorldOverlayRendererRegistration registerRenderer(ResourceLocation type,
+    public static WorldOverlayRendererRegistration registerRenderer(Identifier type,
                                                                      WorldOverlayRenderer renderer) {
         Objects.requireNonNull(type, "type");
         RendererEntry entry = new RendererEntry(NEXT_REGISTRATION_ID.incrementAndGet(),
@@ -146,19 +146,19 @@ public final class UApiWorldOverlays {
     }
 
     /** Captures immutable matrices at the end of world rendering for the following GUI overlay pass. */
-    public static void captureProjection(RenderLevelStageEvent event) {
+    public static void captureProjection(RenderLevelStageEvent.AfterLevel event) {
         Objects.requireNonNull(event, "event");
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             projection = null;
             return;
         }
-        projection = new WorldOverlayProjection(minecraft.level.dimension(), event.getCamera().getPosition(),
-            new Matrix4f(event.getModelViewMatrix()), new Matrix4f(event.getProjectionMatrix()));
+        var camera = event.getLevelRenderState().cameraRenderState;
+        projection = new WorldOverlayProjection(minecraft.level.dimension(), camera.pos,
+            new Matrix4f(event.getModelViewMatrix()), new Matrix4f(camera.projectionMatrix));
     }
 
-    public static void render(Minecraft minecraft, GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static void render(Minecraft minecraft, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         WorldOverlayProjection frame = projection;
         if (frame == null || minecraft.level == null || !frame.dimension().equals(minecraft.level.dimension())) return;
         long now = System.nanoTime();
@@ -315,16 +315,16 @@ public final class UApiWorldOverlays {
     }
 
     private static final class RendererHandle implements WorldOverlayRendererRegistration {
-        private final ResourceLocation type;
+        private final Identifier type;
         private final RendererEntry expected;
         private final AtomicBoolean closed = new AtomicBoolean();
 
-        private RendererHandle(ResourceLocation type, RendererEntry expected) {
+        private RendererHandle(Identifier type, RendererEntry expected) {
             this.type = type;
             this.expected = expected;
         }
 
-        @Override public ResourceLocation type() { return type; }
+        @Override public Identifier type() { return type; }
         @Override public boolean isActive() { synchronized (LOCK) { return !closed.get() && RENDERERS.get(type) == expected; } }
         @Override public void close() { if (closed.compareAndSet(false, true)) synchronized (LOCK) {
             if (RENDERERS.remove(type, expected)) FAILED_RENDERERS.remove(type);

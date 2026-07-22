@@ -1,10 +1,10 @@
 package dev.uapi.client.hud;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Public registration contract for Party, dungeon, ready-check and notification HUD elements. */
 public interface HudElement {
-    ResourceLocation id();
+    Identifier id();
 
     int width();
 

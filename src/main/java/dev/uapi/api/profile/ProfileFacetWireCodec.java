@@ -27,12 +27,12 @@ public final class ProfileFacetWireCodec {
     }
 
     private static void encode(RegistryFriendlyByteBuf buffer, ProfileFacet facet) {
-        buffer.writeResourceLocation(facet.id());
+        buffer.writeIdentifier(facet.id());
         encodeText(buffer, facet.title());
         buffer.writeBoolean(facet.icon().isPresent());
         facet.icon().ifPresent(icon -> {
             buffer.writeEnum(icon.type());
-            buffer.writeResourceLocation(icon.id());
+            buffer.writeIdentifier(icon.id());
         });
         buffer.writeEnum(facet.audience());
         buffer.writeVarInt(facet.displayOrder());
@@ -45,11 +45,11 @@ public final class ProfileFacetWireCodec {
     }
 
     private static ProfileFacet decode(RegistryFriendlyByteBuf buffer) {
-        var id = buffer.readResourceLocation();
+        var id = buffer.readIdentifier();
         ProfileFacetText title = decodeText(buffer);
         java.util.Optional<ProfileFacetIcon> icon = buffer.readBoolean()
             ? java.util.Optional.of(new ProfileFacetIcon(buffer.readEnum(ProfileFacetIconType.class),
-                buffer.readResourceLocation()))
+                buffer.readIdentifier()))
             : java.util.Optional.empty();
         ProfileFacetAudience audience = buffer.readEnum(ProfileFacetAudience.class);
         int displayOrder = buffer.readVarInt();

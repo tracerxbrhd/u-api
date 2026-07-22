@@ -58,6 +58,6 @@ public final class UILabel extends UIComponent {
     @Override
     protected void renderComponent(UIRenderContext context) {
         int resolvedColor = colorToken == null ? color : theme().color(colorToken);
-        context.graphics().drawString(context.font(), text, bounds().x(), bounds().y(), resolvedColor, shadow);
+        context.graphics().text(context.font(), text, bounds().x(), bounds().y(), resolvedColor, shadow);
     }
 }

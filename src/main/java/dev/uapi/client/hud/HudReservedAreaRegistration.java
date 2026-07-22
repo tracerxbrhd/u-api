@@ -1,9 +1,9 @@
 package dev.uapi.client.hud;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface HudReservedAreaRegistration extends AutoCloseable {
-    ResourceLocation id();
+    Identifier id();
 
     boolean isActive();
 

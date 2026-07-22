@@ -14,14 +14,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 
 /** Multi-provider, server-scoped registry for privacy-filtered optional profile sections. */
 public final class ProfileFacetRegistry {
     public static final int MAXIMUM_FACETS = 32;
     public static final int MAXIMUM_PROVIDERS = 32;
-    private static final Map<MinecraftServer, LinkedHashMap<ResourceLocation, ProfileFacetProvider>> PROVIDERS =
+    private static final Map<MinecraftServer, LinkedHashMap<Identifier, ProfileFacetProvider>> PROVIDERS =
         new IdentityHashMap<>();
 
     private ProfileFacetRegistry() {
@@ -33,8 +33,8 @@ public final class ProfileFacetRegistry {
     ) {
         Objects.requireNonNull(server, "server");
         Objects.requireNonNull(provider, "provider");
-        ResourceLocation providerId = Objects.requireNonNull(provider.providerId(), "providerId");
-        LinkedHashMap<ResourceLocation, ProfileFacetProvider> providers =
+        Identifier providerId = Objects.requireNonNull(provider.providerId(), "providerId");
+        LinkedHashMap<Identifier, ProfileFacetProvider> providers =
             PROVIDERS.computeIfAbsent(server, ignored -> new LinkedHashMap<>());
         if (providers.putIfAbsent(providerId, provider) != null)
             throw new IllegalStateException("Profile facet provider is already registered: " + providerId);
@@ -112,17 +112,17 @@ public final class ProfileFacetRegistry {
 
     private static final class Registration implements ProfileFacetRegistration {
         private final MinecraftServer server;
-        private final ResourceLocation providerId;
+        private final Identifier providerId;
         private final ProfileFacetProvider provider;
         private boolean active = true;
 
-        private Registration(MinecraftServer server, ResourceLocation providerId, ProfileFacetProvider provider) {
+        private Registration(MinecraftServer server, Identifier providerId, ProfileFacetProvider provider) {
             this.server = server;
             this.providerId = providerId;
             this.provider = provider;
         }
 
-        @Override public ResourceLocation providerId() { return providerId; }
+        @Override public Identifier providerId() { return providerId; }
 
         @Override public synchronized boolean active() { return active; }
 
@@ -131,7 +131,7 @@ public final class ProfileFacetRegistry {
             if (!active) return;
             active = false;
             synchronized (ProfileFacetRegistry.class) {
-                LinkedHashMap<ResourceLocation, ProfileFacetProvider> providers = PROVIDERS.get(server);
+                LinkedHashMap<Identifier, ProfileFacetProvider> providers = PROVIDERS.get(server);
                 if (providers == null) return;
                 providers.remove(providerId, provider);
                 if (providers.isEmpty()) PROVIDERS.remove(server);

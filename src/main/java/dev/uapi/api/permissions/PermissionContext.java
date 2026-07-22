@@ -3,7 +3,7 @@ package dev.uapi.api.permissions;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Immutable identity of one permission evaluation.
@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 public record PermissionContext(
     UUID actorId,
     Optional<UUID> targetId,
-    ResourceLocation action,
+    Identifier action,
     Optional<PermissionResource> resource
 ) {
     public PermissionContext {
@@ -24,7 +24,7 @@ public record PermissionContext(
         resource = Objects.requireNonNull(resource, "resource");
     }
 
-    public static PermissionContext action(UUID actorId, ResourceLocation action) {
+    public static PermissionContext action(UUID actorId, Identifier action) {
         return new PermissionContext(actorId, Optional.empty(), action, Optional.empty());
     }
 

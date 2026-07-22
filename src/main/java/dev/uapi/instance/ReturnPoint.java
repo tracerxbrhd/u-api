@@ -3,7 +3,7 @@ package dev.uapi.instance;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
@@ -15,7 +15,7 @@ public record ReturnPoint(ResourceKey<Level> dimension, double x, double y, doub
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("dimension", dimension.location().toString());
+        tag.putString("dimension", dimension.identifier().toString());
         tag.putDouble("x", x);
         tag.putDouble("y", y);
         tag.putDouble("z", z);
@@ -25,8 +25,9 @@ public record ReturnPoint(ResourceKey<Level> dimension, double x, double y, doub
     }
 
     public static ReturnPoint load(CompoundTag tag) {
-        ResourceLocation id = ResourceLocation.parse(tag.getString("dimension"));
-        return new ReturnPoint(ResourceKey.create(Registries.DIMENSION, id), tag.getDouble("x"),
-            tag.getDouble("y"), tag.getDouble("z"), tag.getFloat("yaw"), tag.getFloat("pitch"));
+        Identifier id = Identifier.parse(tag.getStringOr("dimension", "minecraft:overworld"));
+        return new ReturnPoint(ResourceKey.create(Registries.DIMENSION, id), tag.getDoubleOr("x", 0.0),
+            tag.getDoubleOr("y", 0.0), tag.getDoubleOr("z", 0.0),
+            tag.getFloatOr("yaw", 0.0F), tag.getFloatOr("pitch", 0.0F));
     }
 }

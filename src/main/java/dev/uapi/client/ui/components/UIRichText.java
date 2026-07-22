@@ -59,7 +59,7 @@ public final class UIRichText extends UIComponent {
         int resolvedColor = colorToken == null ? color : theme().color(colorToken);
         for (var line : cachedLines) {
             if (y + context.font().lineHeight > bounds().bottom()) break;
-            context.graphics().drawString(context.font(), line, bounds().x(), y, resolvedColor, false);
+            context.graphics().text(context.font(), line, bounds().x(), y, resolvedColor, false);
             y += context.font().lineHeight + 1;
         }
     }

@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
  * adapter only when that mod is available.</p>
  */
 public interface WorldgenCompatibilityAdapter {
-    ResourceLocation id();
+    Identifier id();
 
     default int priority() {
         return 0;

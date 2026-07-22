@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.Level;
@@ -40,8 +40,8 @@ public final class WorldgenIntegrationRegistry {
         .comparingInt(ClassifierEntry::priority).reversed()
         .thenComparing(entry -> entry.id().toString());
 
-    private static final Map<ResourceLocation, AdapterEntry> ADAPTERS = new LinkedHashMap<>();
-    private static final Map<ResourceLocation, ClassifierEntry> CLASSIFIERS = new LinkedHashMap<>();
+    private static final Map<Identifier, AdapterEntry> ADAPTERS = new LinkedHashMap<>();
+    private static final Map<Identifier, ClassifierEntry> CLASSIFIERS = new LinkedHashMap<>();
     private static final Set<String> REPORTED_FAILURES = ConcurrentHashMap.newKeySet();
     private static final WorldgenCompatibilityAdapter UNSUPPORTED = new UnsupportedWorldgenAdapter();
     private static boolean frozen;
@@ -63,7 +63,7 @@ public final class WorldgenIntegrationRegistry {
     }
 
     public static synchronized void registerBiomeClassifier(
-        ResourceLocation id,
+        Identifier id,
         int priority,
         BiomeClassifier classifier
     ) {
@@ -89,7 +89,7 @@ public final class WorldgenIntegrationRegistry {
         return new WorldgenContext(
             dimension,
             level.getSeed(),
-            level.getMinBuildHeight(),
+            level.getMinY(),
             level.getHeight(),
             generator.getSeaLevel(),
             level.registryAccess(),
@@ -102,7 +102,7 @@ public final class WorldgenIntegrationRegistry {
         );
     }
 
-    static void reportFailure(ResourceLocation integrationId, String operation, Throwable exception) {
+    static void reportFailure(Identifier integrationId, String operation, Throwable exception) {
         String failureKey = integrationId + "#" + operation;
         if (REPORTED_FAILURES.add(failureKey)) {
             LOGGER.warn(
@@ -158,7 +158,7 @@ public final class WorldgenIntegrationRegistry {
     }
 
     private static BiomeClassifier composeClassifier(
-        ResourceLocation adapterId,
+        Identifier adapterId,
         WorldgenCompatibilityAdapter adapter,
         List<ClassifierEntry> classifiers
     ) {
@@ -200,7 +200,7 @@ public final class WorldgenIntegrationRegistry {
     }
 
     private static BiomeClass safeClassify(
-        ResourceLocation id,
+        Identifier id,
         BiomeClassifier classifier,
         WorldgenContext context,
         Holder<Biome> biome
@@ -220,7 +220,7 @@ public final class WorldgenIntegrationRegistry {
 
     private static void registerEntry(WorldgenCompatibilityAdapter adapter) {
         Objects.requireNonNull(adapter, "adapter");
-        ResourceLocation id = Objects.requireNonNull(adapter.id(), "adapter id");
+        Identifier id = Objects.requireNonNull(adapter.id(), "adapter id");
         AdapterEntry entry = new AdapterEntry(id, adapter.priority(), adapter);
         if (ADAPTERS.putIfAbsent(id, entry) != null) {
             throw new IllegalStateException("Worldgen adapter already registered: " + id);
@@ -234,14 +234,14 @@ public final class WorldgenIntegrationRegistry {
     }
 
     private record AdapterEntry(
-        ResourceLocation id,
+        Identifier id,
         int priority,
         WorldgenCompatibilityAdapter adapter
     ) {
     }
 
     private record ClassifierEntry(
-        ResourceLocation id,
+        Identifier id,
         int priority,
         BiomeClassifier classifier
     ) {
@@ -254,14 +254,14 @@ public final class WorldgenIntegrationRegistry {
     }
 
     private record AdapterSelection(
-        ResourceLocation id,
+        Identifier id,
         WorldgenCompatibilityAdapter adapter,
         WorldgenCapabilities capabilities
     ) {
     }
 
     private static final class VanillaNoiseWorldgenAdapter implements WorldgenCompatibilityAdapter {
-        private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "vanilla_noise");
+        private static final Identifier ID = Identifier.fromNamespaceAndPath(MOD_ID, "vanilla_noise");
         private static final WorldgenCapabilities CAPABILITIES = WorldgenCapabilities.of(
             WorldgenCapability.BASE_BIOME_SAMPLE,
             WorldgenCapability.BASE_HEIGHT_SAMPLE,
@@ -274,7 +274,7 @@ public final class WorldgenIntegrationRegistry {
         );
 
         @Override
-        public ResourceLocation id() {
+        public Identifier id() {
             return ID;
         }
 
@@ -331,10 +331,10 @@ public final class WorldgenIntegrationRegistry {
     }
 
     private static final class UnsupportedWorldgenAdapter implements WorldgenCompatibilityAdapter {
-        private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "unsupported");
+        private static final Identifier ID = Identifier.fromNamespaceAndPath(MOD_ID, "unsupported");
 
         @Override
-        public ResourceLocation id() {
+        public Identifier id() {
             return ID;
         }
 

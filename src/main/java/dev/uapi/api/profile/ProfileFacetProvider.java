@@ -1,7 +1,7 @@
 package dev.uapi.api.profile;
 
 import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Optional server-side profile projection provider.
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
  * enforce its own privacy policy; U-API additionally enforces each facet's declared audience.</p>
  */
 public interface ProfileFacetProvider {
-    ResourceLocation providerId();
+    Identifier providerId();
 
     List<ProfileFacet> provide(ProfileFacetQuery query);
 }

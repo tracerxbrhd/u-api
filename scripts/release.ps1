@@ -1,6 +1,6 @@
 param(
-    [ValidateSet("release", "beta", "alpha")]
-    [string]$Channel = "release",
+    [ValidateSet("auto", "release", "beta", "alpha")]
+    [string]$Channel = "auto",
 
     [switch]$DryRun
 )
@@ -153,8 +153,18 @@ if ($minecraftVersion -notmatch "^\d+\.\d+(?:\.\d+)?$") {
     throw "minecraft_version '$minecraftVersion' is not supported. Expected value like 1.21.1."
 }
 
-$channelSuffix = if ($Channel -eq "release") { "" } else { "-$Channel" }
-$publishVersion = "$modVersion$channelSuffix+mc$minecraftVersion"
+$inferredChannel = if ($modVersion -match "-alpha(?:[.-]|$)") {
+    "alpha"
+} elseif ($modVersion -match "-(?:beta|rc)(?:[.-]|$)") {
+    "beta"
+} else {
+    "release"
+}
+if ($Channel -ne "auto" -and $Channel -ne $inferredChannel) {
+    throw "Requested channel '$Channel' does not match mod_version '$modVersion' (inferred '$inferredChannel')."
+}
+$Channel = $inferredChannel
+$publishVersion = "$modVersion+mc$minecraftVersion"
 $tagName = "v$publishVersion"
 
 if (Test-GitCommand @("show-ref", "--tags", "--verify", "--quiet", "refs/tags/$tagName")) {

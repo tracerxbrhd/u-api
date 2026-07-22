@@ -5,11 +5,12 @@ import dev.uapi.difficulty.DifficultyRank;
 import dev.uapi.event.UApiEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Relative;
 import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public final class InstanceManager {
     private InstanceManager(MinecraftServer server) {
         this.server = server;
         this.bootMillis = System.currentTimeMillis();
-        this.data = server.overworld().getDataStorage().computeIfAbsent(InstanceSavedData.FACTORY, "u_api_instances");
+        this.data = server.overworld().getDataStorage().computeIfAbsent(InstanceSavedData.TYPE);
     }
 
     public static InstanceManager get(MinecraftServer server) {
@@ -68,7 +69,7 @@ public final class InstanceManager {
             .map(instance -> (InstanceView) instance).findFirst();
     }
 
-    public ManagedInstance create(ResourceLocation definitionId, InstanceType type, DifficultyRank difficulty,
+    public ManagedInstance create(Identifier definitionId, InstanceType type, DifficultyRank difficulty,
                                   ServerPlayer owner, int entrySeconds) {
         long active = data.instances().values().stream().filter(value -> !value.phase().terminal()).count();
         int maxActive = UApiServerConfig.MAX_ACTIVE_INSTANCES.get();
@@ -145,7 +146,7 @@ public final class InstanceManager {
         ReturnPoint point = instance.returnPoints().get(player.getUUID());
         ServerLevel target = point == null ? server.overworld() : server.getLevel(point.dimension());
         if (target == null) target = server.overworld();
-        BlockPos fallback = target.getSharedSpawnPos();
+        BlockPos fallback = target.getRespawnData().globalPos().pos();
         double x = point == null ? fallback.getX() + 0.5 : point.x();
         double y = point == null ? fallback.getY() + 1.0 : point.y();
         double z = point == null ? fallback.getZ() + 0.5 : point.z();
@@ -160,7 +161,7 @@ public final class InstanceManager {
             || floor.getCollisionShape(target, requested.below()).isEmpty()) {
             x = fallback.getX() + 0.5; y = fallback.getY() + 1.0; z = fallback.getZ() + 0.5;
         }
-        player.teleportTo(target, x, y, z, yaw, pitch);
+        player.teleportTo(target, x, y, z, java.util.Set.<Relative>of(), yaw, pitch, false);
         player.sendSystemMessage(Component.translatable("message.u_api.returned"));
         return true;
     }

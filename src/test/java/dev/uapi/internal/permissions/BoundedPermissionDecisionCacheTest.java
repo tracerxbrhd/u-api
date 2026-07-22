@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class BoundedPermissionDecisionCacheTest {
@@ -86,7 +86,7 @@ final class BoundedPermissionDecisionCacheTest {
         });
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("permission_test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("permission_test", path);
     }
 }

@@ -1,8 +1,8 @@
 package dev.uapi.client;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Resource-pack replaceable visual states for tabs hosted by a custom screen. */
-public record UApiTabSprites(ResourceLocation normal, ResourceLocation hovered,
-                             ResourceLocation pressed, ResourceLocation selected,
-                             ResourceLocation disabled) {}
+public record UApiTabSprites(Identifier normal, Identifier hovered,
+                             Identifier pressed, Identifier selected,
+                             Identifier disabled) {}

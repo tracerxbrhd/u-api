@@ -4,7 +4,7 @@ import dev.uapi.api.services.ServiceDiagnosticSnapshot;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Immutable cross-module diagnostics snapshot with no live implementation objects. */
 public record UApiDiagnosticSnapshot(
@@ -19,7 +19,7 @@ public record UApiDiagnosticSnapshot(
     PlayerHeadCacheDiagnostic playerHeadCache,
     PacketRateDiagnostic packetRate,
     ServiceDiagnosticSnapshot services,
-    Map<ResourceLocation, Long> extensionGauges
+    Map<Identifier, Long> extensionGauges
 ) {
     public UApiDiagnosticSnapshot {
         Objects.requireNonNull(capturedAt, "capturedAt");

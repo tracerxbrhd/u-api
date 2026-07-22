@@ -1,6 +1,6 @@
 package dev.uapi.api.services;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Marker contract for a service published through {@link UApiServices}.
@@ -8,5 +8,5 @@ import net.minecraft.resources.ResourceLocation;
  * <p>Implementations must return a stable identifier for their full registration lifetime.</p>
  */
 public interface UApiService {
-    ResourceLocation serviceId();
+    Identifier serviceId();
 }

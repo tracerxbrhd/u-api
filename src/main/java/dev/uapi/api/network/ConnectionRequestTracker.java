@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.LongSupplier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Thread-safe pending-request tracker shared by multiple connections.
@@ -47,7 +47,7 @@ public final class ConnectionRequestTracker {
     }
 
     public synchronized RegistrationStatus register(UUID connectionId, RequestId requestId,
-                                                    ResourceLocation actionId) {
+                                                    Identifier actionId) {
         Objects.requireNonNull(connectionId, "connectionId");
         Objects.requireNonNull(requestId, "requestId");
         Objects.requireNonNull(actionId, "actionId");
@@ -160,7 +160,7 @@ public final class ConnectionRequestTracker {
         TOTAL_LIMIT_REACHED
     }
 
-    public record PendingRequest(RequestId requestId, ResourceLocation actionId, long createdAtNanos) {
+    public record PendingRequest(RequestId requestId, Identifier actionId, long createdAtNanos) {
         public PendingRequest {
             Objects.requireNonNull(requestId, "requestId");
             Objects.requireNonNull(actionId, "actionId");

@@ -81,9 +81,9 @@ public final class UIDropdown<T> extends UIComponent {
             theme().color(focused() ? ColorToken.BORDER_FOCUSED : ColorToken.BORDER_DEFAULT));
         Component label = options.get(selectedIndex).label();
         int y = bounds().y() + (bounds().height() - context.font().lineHeight) / 2;
-        context.graphics().drawString(context.font(), label, bounds().x() + 4, y,
+        context.graphics().text(context.font(), label, bounds().x() + 4, y,
             theme().color(enabled() ? ColorToken.TEXT_PRIMARY : ColorToken.TEXT_MUTED), false);
-        context.graphics().drawString(context.font(), Component.literal("▾"), bounds().right() - 10, y,
+        context.graphics().text(context.font(), Component.literal("▾"), bounds().right() - 10, y,
             theme().color(ColorToken.TEXT_SECONDARY), false);
     }
 }

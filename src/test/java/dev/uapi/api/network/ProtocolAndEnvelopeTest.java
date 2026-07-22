@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 final class ProtocolAndEnvelopeTest {
@@ -49,7 +49,7 @@ final class ProtocolAndEnvelopeTest {
         assertEquals(requestId, RequestId.parse(requestId.toString()));
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath("test", path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath("test", path);
     }
 }

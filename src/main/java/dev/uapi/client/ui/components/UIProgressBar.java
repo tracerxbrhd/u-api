@@ -39,7 +39,7 @@ public final class UIProgressBar extends UIComponent {
         context.graphics().fill(bounds().x(), bounds().y(), bounds().x() + fill, bounds().bottom(),
             theme().color(ColorToken.ACCENT_SUCCESS));
         UIRenderPrimitives.border(context.graphics(), bounds(), theme().color(ColorToken.BORDER_DEFAULT));
-        context.graphics().drawString(context.font(), label,
+        context.graphics().text(context.font(), label,
             bounds().x() + (bounds().width() - context.font().width(label)) / 2,
             bounds().y() + (bounds().height() - context.font().lineHeight) / 2,
             theme().color(ColorToken.TEXT_PRIMARY), true);

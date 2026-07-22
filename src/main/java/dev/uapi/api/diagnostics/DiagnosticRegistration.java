@@ -1,10 +1,10 @@
 package dev.uapi.api.diagnostics;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Lifecycle handle for a third-party diagnostic gauge. */
 public interface DiagnosticRegistration extends AutoCloseable {
-    ResourceLocation id();
+    Identifier id();
 
     boolean isActive();
 

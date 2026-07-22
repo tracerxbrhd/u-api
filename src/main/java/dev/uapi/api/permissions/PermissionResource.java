@@ -1,10 +1,10 @@
 package dev.uapi.api.permissions;
 
 import java.util.Objects;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Generic logical resource involved in a permission check. */
-public record PermissionResource(ResourceLocation type, String identifier) {
+public record PermissionResource(Identifier type, String identifier) {
     public PermissionResource {
         Objects.requireNonNull(type, "type");
         Objects.requireNonNull(identifier, "identifier");

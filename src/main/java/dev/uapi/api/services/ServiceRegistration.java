@@ -1,6 +1,6 @@
 package dev.uapi.api.services;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Ownership handle for exactly one service registration.
@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 public interface ServiceRegistration extends AutoCloseable {
     Class<? extends UApiService> contract();
 
-    ResourceLocation serviceId();
+    Identifier serviceId();
 
     ServiceScope scope();
 

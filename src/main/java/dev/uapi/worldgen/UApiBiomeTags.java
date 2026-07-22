@@ -1,7 +1,7 @@
 package dev.uapi.worldgen;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 
@@ -17,6 +17,6 @@ public final class UApiBiomeTags {
     }
 
     private static TagKey<Biome> create(String path) {
-        return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(MOD_ID, path));
+        return TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(MOD_ID, path));
     }
 }

@@ -102,7 +102,7 @@ public class UITextField extends UIComponent {
         int scissorRight = Math.max(scissorLeft, bounds().right() - 2);
         context.graphics().enableScissor(scissorLeft, bounds().y(), scissorRight, bounds().bottom());
         try {
-            context.graphics().drawString(context.font(), shown, x, y, color, false);
+            context.graphics().text(context.font(), shown, x, y, color, false);
             if (focused() && (System.currentTimeMillis() / 500 & 1) == 0) {
                 int cursorX = x + context.font().width(value.substring(0, cursor));
                 context.graphics().fill(cursorX, y - 1, cursorX + 1, y + context.font().lineHeight + 1,

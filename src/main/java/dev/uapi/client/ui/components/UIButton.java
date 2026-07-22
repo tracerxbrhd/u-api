@@ -68,7 +68,7 @@ public class UIButton extends UIComponent {
         if (drawLabel()) {
             int x = bounds().x() + (bounds().width() - context.font().width(label)) / 2;
             int y = bounds().y() + (bounds().height() - context.font().lineHeight) / 2;
-            context.graphics().drawString(context.font(), label, x, y, text, false);
+            context.graphics().text(context.font(), label, x, y, text, false);
         }
     }
 

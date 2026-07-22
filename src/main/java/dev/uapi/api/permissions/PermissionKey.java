@@ -1,10 +1,10 @@
 package dev.uapi.api.permissions;
 
 import java.util.Objects;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Stable, namespace-qualified permission identifier. */
-public record PermissionKey(ResourceLocation id) implements Comparable<PermissionKey> {
+public record PermissionKey(Identifier id) implements Comparable<PermissionKey> {
     public PermissionKey {
         Objects.requireNonNull(id, "id");
         if (id.getNamespace().isBlank() || id.getPath().isBlank()) {
@@ -14,7 +14,7 @@ public record PermissionKey(ResourceLocation id) implements Comparable<Permissio
 
     public static PermissionKey parse(String value) {
         Objects.requireNonNull(value, "value");
-        ResourceLocation id = ResourceLocation.tryParse(value);
+        Identifier id = Identifier.tryParse(value);
         if (id == null) {
             throw new IllegalArgumentException("Invalid permission ID: " + value);
         }

@@ -21,7 +21,7 @@ public final class UILoadingState extends UIComponent {
     protected void renderComponent(UIRenderContext context) {
         int dots = (int) (System.currentTimeMillis() / 350 % 4);
         Component text = frames[dots];
-        context.graphics().drawCenteredString(context.font(), text,
+        context.graphics().centeredText(context.font(), text,
             bounds().x() + bounds().width() / 2,
             bounds().y() + (bounds().height() - context.font().lineHeight) / 2,
             theme().color(ColorToken.TEXT_SECONDARY));

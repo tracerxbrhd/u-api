@@ -23,7 +23,7 @@ public final class UIRoleBadge extends UIComponent {
     @Override
     protected void renderComponent(UIRenderContext context) {
         context.graphics().fill(bounds().x(), bounds().y(), bounds().right(), bounds().bottom(), accentColor);
-        context.graphics().drawString(context.font(), label, bounds().x() + 4,
+        context.graphics().text(context.font(), label, bounds().x() + 4,
             bounds().y() + (bounds().height() - context.font().lineHeight) / 2,
             theme().color(dev.uapi.client.ui.theme.UITheme.ColorToken.TEXT_PRIMARY), true);
     }

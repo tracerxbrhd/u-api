@@ -7,16 +7,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Pure server-side ready-check state machine. It owns no global state and never mutates an input snapshot.
  */
 public final class ReadyCheckStateMachine {
-    public static final ResourceLocation REASON_ALL_READY = reason("all_ready");
-    public static final ResourceLocation REASON_DECLINED = reason("declined");
-    public static final ResourceLocation REASON_TIMEOUT = reason("timeout");
-    public static final ResourceLocation REASON_CANCELLED = reason("cancelled");
+    public static final Identifier REASON_ALL_READY = reason("all_ready");
+    public static final Identifier REASON_DECLINED = reason("declined");
+    public static final Identifier REASON_TIMEOUT = reason("timeout");
+    public static final Identifier REASON_CANCELLED = reason("cancelled");
 
     private ReadyCheckStateMachine() {
     }
@@ -92,7 +92,7 @@ public final class ReadyCheckStateMachine {
         UUID actorId,
         boolean managerAuthorized,
         Instant now,
-        ResourceLocation reasonCode
+        Identifier reasonCode
     ) {
         requireOperation(snapshot, now);
         Objects.requireNonNull(actorId, "actorId");
@@ -147,7 +147,7 @@ public final class ReadyCheckStateMachine {
             throw new IllegalArgumentException("operation time predates ready check");
     }
 
-    private static ResourceLocation reason(String path) {
-        return ResourceLocation.fromNamespaceAndPath("u_api", "ready_check/" + path);
+    private static Identifier reason(String path) {
+        return Identifier.fromNamespaceAndPath("u_api", "ready_check/" + path);
     }
 }
