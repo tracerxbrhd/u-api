@@ -43,14 +43,9 @@ public final class UApiHud {
     public static HudElementRegistration register(HudElement element) {
         Objects.requireNonNull(element, "element");
         Identifier id = Objects.requireNonNull(element.id(), "element.id()");
-        int width = element.width();
-        int height = element.height();
-        if (width <= 0 || height <= 0) {
-            throw new IllegalArgumentException("HUD element size must be positive: " + id);
-        }
         HudPlacement defaultPlacement = Objects.requireNonNull(element.defaultPlacement(), "element.defaultPlacement()");
         Entry entry = new Entry(NEXT_ID.incrementAndGet(), id, element, defaultPlacement,
-            width, height);
+            1, 1);
         synchronized (LOCK) {
             if (ELEMENTS.putIfAbsent(id, entry) != null) throw new IllegalStateException("HUD element already registered: " + id);
             FAILED_ELEMENTS.remove(id);

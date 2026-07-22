@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-beta.2 - 2026-07-22
+
+- Deferred HUD element dimension sampling until the render/layout phase so client lifecycle
+  registrations cannot access an uninitialized Minecraft window.
+
 ## 3.0.0-beta.1 - 2026-07-22
 
 - Ported U-API to Minecraft 26.2, NeoForge 26.2.0.28-beta and Java 25.

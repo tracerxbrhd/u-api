@@ -16,16 +16,14 @@ Create these GitHub Actions settings before tagging:
 ```text
 git switch port/26.2
 git add -A
-git commit -m "Port U-API to Minecraft 26.2"
+git commit -m "Fix U-API HUD registration on Minecraft 26.2"
 git push -u github port/26.2
 ```
 
-Open a pull request into `master` and wait for the `CI` workflow. After merging, switch to the
-merged commit and perform a local release dry-run:
+Wait for the branch `CI` workflow, then perform a local release dry-run from the synchronized
+version branch. Merging into `master` is optional and is not required by the release workflow:
 
 ```text
-git switch master
-git pull github master
 .\scripts\release.ps1 -DryRun
 ```
 
@@ -33,8 +31,8 @@ Then run `.\scripts\release.ps1` to create and push the exact tag safely, or use
 manual commands below. The tag must exactly match `gradle.properties`:
 
 ```text
-git tag -a v3.0.0-beta.1+mc26.2 -m "U-API 3.0.0-beta.1 for Minecraft 26.2"
-git push github v3.0.0-beta.1+mc26.2
+git tag -a v3.0.0-beta.2+mc26.2 -m "U-API 3.0.0-beta.2 for Minecraft 26.2"
+git push github v3.0.0-beta.2+mc26.2
 ```
 
 The prerelease suffix in `mod_version` makes GitHub and Modrinth publish this as a beta. Release
