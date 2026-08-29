@@ -7,12 +7,12 @@ bounded networking primitives, diagnostics, instance lifecycle and optional inte
 - Minecraft: 1.21.1
 - NeoForge: 21.1.234
 - Java: 21
-- Version: 2.1.0
+- Version: 2.1.1
 - Mod ID: `u_api`
 
 U-API configuration is stored under `config/uapi/u-api/` as `common.toml`, `client.toml` and `server.toml`. These files are created and loaded through NeoForge and are edited manually. U-API does not provide an in-game configuration editor.
 
-Version 2.1.0 extends the shared service, social, retained-UI, HUD, overlay, networking and
+Version 2.1.1 extends the shared service, social, retained-UI, HUD, overlay, networking and
 diagnostic foundation described in [`docs/API_2_FOUNDATION.md`](docs/API_2_FOUNDATION.md). The
 deterministic 1.4 worldgen compatibility layer remains available; see
 [`docs/WORLDGEN_INTEGRATION.md`](docs/WORLDGEN_INTEGRATION.md).
@@ -30,4 +30,4 @@ simple label/value rows and richer identity cards with namespaced IDs, translata
 defensive item icons and bounded metadata.
 
 Build on Windows with `gradlew.bat build`. The resulting artifact is
-`build/libs/u-api-2.1.0+mc1.21.1.jar`.
+`build/libs/u-api-2.1.1+mc1.21.1.jar`.
