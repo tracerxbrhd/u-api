@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0 - 2026-08-29
+
+- Added a native inventory tab for Sophisticated Backpacks that appears only when the optional mod
+  is installed and opens the player's first available backpack through its standard network request.
+- Extended neutral profile facets with bounded identity cards carrying rich components, optional
+  source IDs, defensive `ItemStack` icons, and metadata for data-driven integrations.
+- Added retained UI rendering and a size-bounded wire codec for identity cards while preserving
+  the existing audience/privacy contract.
+
 ## 2.0.0 - 2026-07-13
 
 - Added lifecycle-scoped public service discovery without dependencies on consuming mods.

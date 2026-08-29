@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
 final class ProfileFacetContractsTest {
@@ -29,5 +31,23 @@ final class ProfileFacetContractsTest {
         assertThrows(IllegalArgumentException.class, () -> new ProfileFacet(
             ResourceLocation.fromNamespaceAndPath("test", "empty"), ProfileFacetText.literal("Empty"),
             ProfileFacetAudience.PUBLIC, 0, List.of()));
+    }
+
+    @Test
+    void identityEntriesRejectUnboundedContent() {
+        assertThrows(IllegalArgumentException.class, () -> new ProfileFacetEntry(
+            ResourceLocation.fromNamespaceAndPath("test", "identity"),
+            ProfileFacetText.literal("Identity"),
+            Component.literal("x".repeat(ProfileFacetEntry.MAXIMUM_NAME_LENGTH + 1)),
+            Component.empty(),
+            (ItemStack) null,
+            List.of()));
+        assertThrows(IllegalArgumentException.class, () -> new ProfileFacetEntry(
+            ResourceLocation.fromNamespaceAndPath("test", "identity"),
+            ProfileFacetText.literal("Identity"),
+            Component.literal("Bounded"),
+            Component.literal("x".repeat(ProfileFacetEntry.MAXIMUM_DESCRIPTION_LENGTH + 1)),
+            (ItemStack) null,
+            List.of()));
     }
 }

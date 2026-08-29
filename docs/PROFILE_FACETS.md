@@ -13,9 +13,12 @@ types.
 3. U-API applies the declared `ProfileFacetAudience`, sorts the result and caps it at 32 facets.
 4. The owning mod encodes the result with `ProfileFacetWireCodec` in its own versioned payload.
 5. The client renders `ProfileFacetText.component()` values in its own UI, or uses the retained
-   `UIProfileFacetPanel`. Optional item/sprite/texture icon metadata is namespaced and bounded;
-   generic rendering supports item and sprite icons while provider textures remain screen-owned.
-   U-API does not open a screen or send an unsolicited packet.
+   `UIProfileFacetPanel`. A facet may contain compact label/value fields, retained
+   `ProfileFacetEntry` identity cards, or both. Identity cards preserve data-driven `Component`
+   names/descriptions and a defensive one-item `ItemStack` icon without exposing provider Java
+   types. Every card has bounded text, metadata and a 16 KiB encoded-size ceiling. Optional
+   item/sprite/texture facet icons remain namespaced and bounded. U-API does not open a screen or
+   send an unsolicited packet.
 
 Providers are server-scoped and cleaned at server stop. Duplicate provider IDs are rejected, and a
 provider failure is isolated from other providers.
@@ -34,6 +37,9 @@ modifier sources, or server configuration.
 ## Current adapters and UI hooks
 
 - `SoulProfileFacetProvider` registers automatically and shares only U-API records.
+- Identity providers should use `ProfileFacet.entries(...)` instead of creating a second registry.
+  The semantic entry type and optional source ID are namespaced identifiers; provider-specific
+  objects must be projected to immutable public data on the server.
 - New social/profile providers should use a separate, versioned request after a subject is selected,
   re-check permissions and privacy on the server, query the appropriate context, encode the bounded
   response with `ProfileFacetWireCodec`, and render it in their own detail panel.

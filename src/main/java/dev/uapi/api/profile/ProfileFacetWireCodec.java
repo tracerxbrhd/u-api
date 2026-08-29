@@ -1,8 +1,12 @@
 package dev.uapi.api.profile;
 
+import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
 
 /** Shared bounded wire codec for mod-owned payloads carrying neutral profile facets. */
 public final class ProfileFacetWireCodec {
@@ -42,6 +46,8 @@ public final class ProfileFacetWireCodec {
             encodeText(buffer, field.value());
             buffer.writeBoolean(field.prominent());
         }
+        buffer.writeVarInt(facet.entries().size());
+        for (ProfileFacetEntry entry : facet.entries()) encodeEntry(buffer, entry);
     }
 
     private static ProfileFacet decode(RegistryFriendlyByteBuf buffer) {
@@ -54,13 +60,18 @@ public final class ProfileFacetWireCodec {
         ProfileFacetAudience audience = buffer.readEnum(ProfileFacetAudience.class);
         int displayOrder = buffer.readVarInt();
         int size = buffer.readVarInt();
-        if (size < 1 || size > ProfileFacet.MAXIMUM_FIELDS)
+        if (size < 0 || size > ProfileFacet.MAXIMUM_FIELDS)
             throw new IllegalArgumentException("invalid profile facet field count: " + size);
         List<ProfileFacetField> fields = new ArrayList<>(size);
         for (int index = 0; index < size; index++) {
             fields.add(new ProfileFacetField(decodeText(buffer), decodeText(buffer), buffer.readBoolean()));
         }
-        return new ProfileFacet(id, title, icon, audience, displayOrder, fields);
+        int entryCount = buffer.readVarInt();
+        if (entryCount < 0 || entryCount > ProfileFacet.MAXIMUM_ENTRIES)
+            throw new IllegalArgumentException("invalid profile facet entry count: " + entryCount);
+        List<ProfileFacetEntry> entries = new ArrayList<>(entryCount);
+        for (int index = 0; index < entryCount; index++) entries.add(decodeEntry(buffer));
+        return new ProfileFacet(id, title, icon, audience, displayOrder, fields, entries);
     }
 
     private static void encodeText(RegistryFriendlyByteBuf buffer, ProfileFacetText text) {
@@ -70,5 +81,60 @@ public final class ProfileFacetWireCodec {
 
     private static ProfileFacetText decodeText(RegistryFriendlyByteBuf buffer) {
         return new ProfileFacetText(buffer.readUtf(ProfileFacetText.MAXIMUM_LENGTH), buffer.readBoolean());
+    }
+
+    private static void encodeEntry(RegistryFriendlyByteBuf destination, ProfileFacetEntry entry) {
+        RegistryFriendlyByteBuf buffer =
+            new RegistryFriendlyByteBuf(Unpooled.buffer(), destination.registryAccess());
+        try {
+            buffer.writeResourceLocation(entry.type());
+            buffer.writeBoolean(entry.id().isPresent());
+            entry.id().ifPresent(buffer::writeResourceLocation);
+            encodeText(buffer, entry.typeLabel());
+            ComponentSerialization.STREAM_CODEC.encode(buffer, entry.name());
+            ComponentSerialization.STREAM_CODEC.encode(buffer, entry.description());
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, entry.icon());
+            buffer.writeVarInt(entry.metadata().size());
+            for (ProfileFacetField field : entry.metadata()) {
+                encodeText(buffer, field.label());
+                encodeText(buffer, field.value());
+                buffer.writeBoolean(field.prominent());
+            }
+            int encodedSize = buffer.readableBytes();
+            if (encodedSize > ProfileFacetEntry.MAXIMUM_WIRE_BYTES)
+                throw new IllegalArgumentException("profile facet entry exceeds "
+                    + ProfileFacetEntry.MAXIMUM_WIRE_BYTES + " encoded bytes");
+            destination.writeVarInt(encodedSize);
+            destination.writeBytes(buffer, buffer.readerIndex(), encodedSize);
+        } finally {
+            buffer.release();
+        }
+    }
+
+    private static ProfileFacetEntry decodeEntry(RegistryFriendlyByteBuf source) {
+        int encodedSize = source.readVarInt();
+        if (encodedSize < 0 || encodedSize > ProfileFacetEntry.MAXIMUM_WIRE_BYTES)
+            throw new IllegalArgumentException("invalid profile facet entry size: " + encodedSize);
+        RegistryFriendlyByteBuf buffer =
+            new RegistryFriendlyByteBuf(source.readSlice(encodedSize), source.registryAccess());
+        var type = buffer.readResourceLocation();
+        java.util.Optional<net.minecraft.resources.ResourceLocation> id = buffer.readBoolean()
+            ? java.util.Optional.of(buffer.readResourceLocation()) : java.util.Optional.empty();
+        ProfileFacetText typeLabel = decodeText(buffer);
+        Component name = ComponentSerialization.STREAM_CODEC.decode(buffer);
+        Component description = ComponentSerialization.STREAM_CODEC.decode(buffer);
+        ItemStack icon = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
+        int metadataCount = buffer.readVarInt();
+        if (metadataCount < 0 || metadataCount > ProfileFacetEntry.MAXIMUM_METADATA_FIELDS)
+            throw new IllegalArgumentException("invalid profile facet entry metadata count: "
+                + metadataCount);
+        List<ProfileFacetField> metadata = new ArrayList<>(metadataCount);
+        for (int index = 0; index < metadataCount; index++) {
+            metadata.add(new ProfileFacetField(
+                decodeText(buffer), decodeText(buffer), buffer.readBoolean()));
+        }
+        if (buffer.isReadable())
+            throw new IllegalArgumentException("profile facet entry contains trailing bytes");
+        return new ProfileFacetEntry(type, id, typeLabel, name, description, icon, metadata);
     }
 }

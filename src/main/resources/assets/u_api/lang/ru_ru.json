@@ -9,5 +9,6 @@
   "difficulty.u_api.a": "A",
   "difficulty.u_api.s": "S",
   "difficulty.u_api.anomaly": "АНОМАЛИЯ",
-  "screen.u_api.inventory": "Инвентарь"
+  "screen.u_api.inventory": "Инвентарь",
+  "screen.u_api.sophisticated_backpack": "Рюкзак"
 }
