@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-beta.5 - 2026-08-29
 
 - Made the Sophisticated Backpacks inventory tab equipment-aware: it updates live and is shown only
   for a backpack equipped in the chest armor, Curios or Accessories handlers, ignores backpacks
