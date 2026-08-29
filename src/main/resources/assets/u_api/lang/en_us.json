@@ -9,5 +9,6 @@
   "difficulty.u_api.a": "A",
   "difficulty.u_api.s": "S",
   "difficulty.u_api.anomaly": "ANOMALY",
-  "screen.u_api.inventory": "Inventory"
+  "screen.u_api.inventory": "Inventory",
+  "screen.u_api.sophisticated_backpack": "Backpack"
 }

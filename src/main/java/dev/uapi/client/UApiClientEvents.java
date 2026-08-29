@@ -6,6 +6,7 @@ import dev.uapi.client.sidebar.UApiSidebarButtons;
 import dev.uapi.client.hud.UApiHud;
 import dev.uapi.client.overlay.UApiWorldOverlays;
 import dev.uapi.config.UApiClientConfigManager;
+import dev.uapi.integration.sophisticatedbackpacks.SophisticatedBackpacksClientIntegration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -25,6 +26,7 @@ public final class UApiClientEvents {
 
     @SubscribeEvent
     public static void addScreenTabs(ScreenEvent.Init.Post event) {
+        SophisticatedBackpacksClientIntegration.bootstrap();
         addScreenTabsIfSupported(event);
 
         if (event.getScreen() instanceof AbstractContainerScreen<?>) {

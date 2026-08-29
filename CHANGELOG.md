@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-beta.3 - 2026-08-29
+
+- Added a native inventory tab for Sophisticated Backpacks that appears only when the optional mod
+  is installed and opens the player's first available backpack through its standard network request.
+
 ## 3.0.0-beta.2 - 2026-07-22
 
 - Deferred HUD element dimension sampling until the render/layout phase so client lifecycle
