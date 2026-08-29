@@ -1,9 +1,15 @@
 # Changelog
 
-## 3.0.0-beta.3 - 2026-08-29
+## 3.0.0-beta.4 - 2026-08-29
 
 - Added a native inventory tab for Sophisticated Backpacks that appears only when the optional mod
   is installed and opens the player's first available backpack through its standard network request.
+- Updated the native backpack request to NeoForge 26.2's client packet distributor after the
+  unpublished beta.3 build exposed the API change.
+
+## 3.0.0-beta.3 - 2026-08-29
+
+- Build attempt only; no release artifact was published.
 
 ## 3.0.0-beta.2 - 2026-07-22
 

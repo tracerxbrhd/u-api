@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.lang.reflect.Constructor;
 
@@ -64,7 +64,7 @@ public final class SophisticatedBackpacksClientIntegration {
         if (minecraft.player == null || minecraft.getConnection() == null || openPayloadConstructor == null)
             return null;
         try {
-            PacketDistributor.sendToServer(openPayloadConstructor.newInstance());
+            ClientPacketDistributor.sendToServer(openPayloadConstructor.newInstance());
         } catch (ReflectiveOperationException | RuntimeException | LinkageError exception) {
             if (!sendFailureLogged) {
                 sendFailureLogged = true;
