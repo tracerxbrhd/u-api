@@ -77,10 +77,8 @@ public final class UApiClientEvents {
             sprites = host.uApiTabSprites();
         } else return;
 
-        int index = 0;
-        for (UApiScreenTabs.Tab tab : UApiScreenTabs.tabs()) {
-            event.addListener(new UApiTabButton(left + index * 26, top, tab, tab.id().equals(selected), sprites));
-            index++;
+        for (UApiScreenTabs.Tab tab : UApiScreenTabs.registeredTabs()) {
+            event.addListener(new UApiTabButton(left, top, tab, tab.id().equals(selected), sprites));
         }
     }
 

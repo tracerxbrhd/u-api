@@ -20,7 +20,9 @@ deterministic 1.4 worldgen compatibility layer remains available; see
 Optional JSON-driven inventory helper buttons are configured in
 `config/uapi/u-api/sidebar_buttons.json`; see [`docs/SIDEBAR_BUTTONS.md`](docs/SIDEBAR_BUTTONS.md).
 When Sophisticated Backpacks is installed, U-API also adds a native Backpack tab to the inventory;
-the tab uses the backpack mod's own selection and opening flow and adds no required dependency.
+the tab appears only for a backpack equipped in the chest armor, Curios or Accessories handlers,
+updates live when equipment changes, and opens that exact slot. Backpacks carried in the regular
+inventory are deliberately ignored, and the integration adds no required dependency.
 
 Optional mods can exchange bounded, privacy-filtered public profile sections through the neutral
 facet contract described in [`docs/PROFILE_FACETS.md`](docs/PROFILE_FACETS.md).

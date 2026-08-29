@@ -12,24 +12,29 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 final class UApiTabButton extends AbstractButton {
+    private static final int TAB_SPACING = 26;
+
     private final UApiScreenTabs.Tab tab;
-    private final ItemStack itemIcon;
+    private final int barLeft;
     private final boolean selected;
     private final UApiTabSprites customSprites;
+    private ItemStack itemIcon;
+    private boolean tabWasVisible;
     private boolean pressed;
 
-    UApiTabButton(int x, int y, UApiScreenTabs.Tab tab, boolean selected, UApiTabSprites customSprites) {
-        super(x, y, 24, 24, tab.title());
+    UApiTabButton(int barLeft, int y, UApiScreenTabs.Tab tab, boolean selected, UApiTabSprites customSprites) {
+        super(barLeft, y, 24, 24, tab.title());
         this.tab = tab;
-        this.itemIcon = tab.itemIcon() == null ? null : tab.itemIcon().get();
+        this.barLeft = barLeft;
         this.selected = selected;
         this.customSprites = customSprites;
         setTooltip(Tooltip.create(tab.title()));
+        refreshPlacement();
     }
 
     @Override
     public void onPress(InputWithModifiers input) {
-        if (selected) return;
+        if (selected || !refreshPlacement()) return;
         setFocused(false);
         var minecraft = Minecraft.getInstance();
         var target = tab.opener().apply(minecraft);
@@ -49,7 +54,13 @@ final class UApiTabButton extends AbstractButton {
     }
 
     @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return refreshPlacement() && super.isMouseOver(mouseX, mouseY);
+    }
+
+    @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        if (!refreshPlacement()) return;
         // Focus remains available to keyboard navigation, but is never reused as a persistent hover state.
         boolean hovered = isMouseOver(mouseX, mouseY);
         if (customSprites == null) {
@@ -70,6 +81,24 @@ final class UApiTabButton extends AbstractButton {
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) {
-        defaultButtonNarrationText(output);
+        if (refreshPlacement()) defaultButtonNarrationText(output);
+    }
+
+    private boolean refreshPlacement() {
+        int visibleIndex = UApiScreenTabs.visibleIndex(tab);
+        if (visibleIndex < 0) {
+            active = false;
+            tabWasVisible = false;
+            pressed = false;
+            setFocused(false);
+            return false;
+        }
+        active = true;
+        setX(barLeft + visibleIndex * TAB_SPACING);
+        if (!tabWasVisible) {
+            itemIcon = tab.itemIcon() == null ? null : tab.itemIcon().get();
+            tabWasVisible = true;
+        }
+        return true;
     }
 }

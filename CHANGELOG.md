@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Made the Sophisticated Backpacks inventory tab equipment-aware: it updates live and is shown only
+  for a backpack equipped in the chest armor, Curios or Accessories handlers, ignores backpacks
+  carried in the regular inventory, and opens the exact equipped slot through the mod's native request.
+
 ## 3.0.0-beta.4 - 2026-08-29
 
 - Added a native inventory tab for Sophisticated Backpacks that appears only when the optional mod
