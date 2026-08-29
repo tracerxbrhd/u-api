@@ -56,10 +56,26 @@ public final class UApiScreenTabs {
     }
 
     public static synchronized List<Tab> tabs() {
-        List<Tab> result = new ArrayList<>();
-        for (Tab tab : TABS.values()) if (tab.visible().getAsBoolean()) result.add(tab);
-        result.sort(Comparator.comparingInt(Tab::order).thenComparing(value -> value.id().toString()));
+        List<Tab> result = registeredTabs();
+        result.removeIf(tab -> !tab.visible().getAsBoolean());
         return List.copyOf(result);
+    }
+
+    static synchronized List<Tab> registeredTabs() {
+        List<Tab> result = new ArrayList<>();
+        result.addAll(TABS.values());
+        result.sort(Comparator.comparingInt(Tab::order).thenComparing(value -> value.id().toString()));
+        return result;
+    }
+
+    static synchronized int visibleIndex(Tab target) {
+        int index = 0;
+        for (Tab tab : registeredTabs()) {
+            if (!tab.visible().getAsBoolean()) continue;
+            if (tab.id().equals(target.id())) return index;
+            index++;
+        }
+        return -1;
     }
 
     public record Tab(ResourceLocation id, int order, Component title, Supplier<ItemStack> itemIcon,
