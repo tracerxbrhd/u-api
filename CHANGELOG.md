@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.2 - 2026-09-01
+
+- Added working project and issue-tracker links to the metadata shown by NeoForge mod lists.
+- Added branch CI for release builds so patch artifacts are compiled and tested before tagging.
+
 ## 2.1.1 - 2026-08-29
 
 - Made the Sophisticated Backpacks inventory tab equipment-aware: it updates live and is shown only
