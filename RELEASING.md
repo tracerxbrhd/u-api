@@ -31,9 +31,10 @@ Then run `.\scripts\release.ps1` to create and push the exact tag safely, or use
 manual commands below. The tag must exactly match `gradle.properties`:
 
 ```text
-git tag -a v3.0.0-beta.2+mc26.2 -m "U-API 3.0.0-beta.2 for Minecraft 26.2"
-git push github v3.0.0-beta.2+mc26.2
+git tag -a v3.0.0+mc26.2 -m "U-API 3.0.0 for Minecraft 26.2"
+git push github v3.0.0+mc26.2
 ```
 
-The prerelease suffix in `mod_version` makes GitHub and Modrinth publish this as a beta. Release
-U-API before tagging Soul Ascension because its release build checks out this exact U-API tag.
+The stable `mod_version` makes GitHub, Modrinth and configured CurseForge publication use the
+release channel. Release U-API before tagging dependent mods because their release builds check
+out this exact U-API tag.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.0 - 2026-09-01
+
+- Promoted the Minecraft 26.2 port to a stable release after the beta line passed compatibility
+  and lifecycle validation.
+- Added working project and issue-tracker links to the metadata shown by NeoForge mod lists.
+- Contains no API, gameplay or persisted-data changes from 3.0.0-beta.5.
+
 ## 3.0.0-beta.5 - 2026-08-29
 
 - Made the Sophisticated Backpacks inventory tab equipment-aware: it updates live and is shown only
