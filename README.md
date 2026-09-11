@@ -1,13 +1,13 @@
 ![U-API banner](docs/branding/u-api-banner.png)
 
-# U-API
-
 <p align="center">
   <a href="https://github.com/tracerxbrhd/u-api/releases"><img alt="Release" src="https://img.shields.io/github/v/release/tracerxbrhd/u-api?include_prereleases&sort=semver&label=release"></a>
   <a href="https://github.com/tracerxbrhd/u-api/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/tracerxbrhd/u-api/actions/workflows/ci.yml/badge.svg?branch=master"></a>
   <a href="https://modrinth.com/mod/u-api"><img alt="Modrinth" src="https://img.shields.io/badge/Modrinth-Download-00AF5C?logo=modrinth&logoColor=white"></a>
   <a href="https://www.curseforge.com/minecraft/mc-mods/u-api"><img alt="CurseForge" src="https://img.shields.io/badge/CurseForge-Download-F16436?logo=curseforge&logoColor=white"></a>
 </p>
+
+# U-API
 
 **U-API is the shared technical foundation for the Underworld Studio Minecraft mod ecosystem.** It provides reusable services, retained UI, HUD and world overlays, networking primitives, diagnostics, instance lifecycle, social and permission contracts, and optional integration points for dependent mods.
 
